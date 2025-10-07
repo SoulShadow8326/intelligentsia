@@ -192,117 +192,99 @@ class Handler(SimpleHTTPRequestHandler):
             return SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        if self.path == '/upload-id':
-            import pycgi as cgi
-            import uuid
-            import json
+        if self.path != '/upload-id':
+            return super().do_POST()
 
-            content_type = self.headers.get('Content-Type', '')
-            if 'multipart/form-data' not in content_type:
-                self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"Expected multipart/form-data"}')
-                return
+        import io, uuid, json
 
-            if hasattr(cgi, 'FieldStorage'):
-                fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD':'POST'}, keep_blank_values=True)
-            else:
-                import io
-                content_length = int(self.headers.get('Content-Length', 0))
-                body = self.rfile.read(content_length)
-                ctype = self.headers.get('Content-Type', '')
-                boundary = None
-                for part in ctype.split(';'):
-                    part = part.strip()
-                    if part.startswith('boundary='):
-                        boundary = part.split('=',1)[1]
-                        break
-                if boundary is None:
-                    fs = {}
-                else:
-                    bboundary = ('--' + boundary).encode('utf-8')
-                    parts = body.split(bboundary)
-                    fs = {}
-                    for p in parts:
-                        if not p or p == b'--' or p == b'--\r\n':
-                            continue
-                        segment = p.strip(b'\r\n')
-                        if b'\r\n\r\n' not in segment:
-                            continue
-                        hdrs, data = segment.split(b'\r\n\r\n', 1)
-                        hdr_lines = hdrs.split(b'\r\n')
-                        filename = None
-                        name = None
-                        for hl in hdr_lines:
-                            hl_dec = hl.decode('utf-8', errors='ignore')
-                            if hl_dec.lower().startswith('content-disposition:'):
-                                partsd = hl_dec.split(';')
-                                for pd in partsd:
-                                    pd = pd.strip()
-                                    if pd.startswith('name='):
-                                        name = pd.split('=',1)[1].strip('"')
-                                    if pd.startswith('filename='):
-                                        filename = pd.split('=',1)[1].strip('"')
-                        if name:
-                            class _Part:
-                                pass
-                            partobj = _Part()
-                            partobj.filename = filename
-                            if data.endswith(b'\r\n'):
-                                data = data[:-2]
-                            partobj.file = io.BytesIO(data)
-                            fs[name] = partobj
-            if 'file' not in fs:
-                self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
-                return
-            fileitem = fs['file']
-            if not getattr(fileitem, 'filename', None):
-                self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
-                return
-
-            uploads_dir = os.path.join(WEBROOT, 'uploads')
-            os.makedirs(uploads_dir, exist_ok=True)
-            filename = str(uuid.uuid4()) + '_' + os.path.basename(fileitem.filename)
-            save_path = os.path.join(uploads_dir, filename)
-            with open(save_path, 'wb') as out:
-                data = fileitem.file.read()
-                out.write(data)
-
-            try:
-                from qrscan import compare_images
-                match = compare_images(save_path)
-            except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                payload = json.dumps({"ok": False, "error": str(e)})
-                self.wfile.write(payload.encode('utf-8'))
-                try:
-                    os.remove(save_path)
-                except Exception:
-                    pass
-                return
-
-            try:
-                os.remove(save_path)
-            except Exception:
-                pass
-
-            self.send_response(200)
+        content_type = self.headers.get('Content-Type', '')
+        if 'multipart/form-data' not in content_type:
+            self.send_response(400)
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
-            payload = json.dumps({"ok": True, "match": bool(match)})
-            self.wfile.write(payload.encode('utf-8'))
+            self.wfile.write(b'{"ok":false,"error":"Expected multipart/form-data"}')
             return
-        else:
-            return SimpleHTTPRequestHandler.do_POST(self)
+
+        # Extract boundary
+        boundary = None
+        for part in content_type.split(';'):
+            part = part.strip()
+            if part.startswith('boundary='):
+                boundary = part.split('=', 1)[1]
+                break
+        if not boundary:
+            self.send_response(400)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"No boundary found"}')
+            return
+
+        boundary_bytes = ('--' + boundary).encode('utf-8')
+        content_length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(content_length)
+        parts = body.split(boundary_bytes)
+        
+        file_data = None
+        filename = None
+
+        for part in parts:
+            if not part or part in (b'--', b'--\r\n'):
+                continue
+            headers_body = part.strip(b'\r\n').split(b'\r\n\r\n', 1)
+            if len(headers_body) != 2:
+                continue
+            headers, data = headers_body
+            header_lines = headers.split(b'\r\n')
+            for hl in header_lines:
+                hl_dec = hl.decode('utf-8', errors='ignore').lower()
+                if hl_dec.startswith('content-disposition:'):
+                    if b'name="file"' in hl:
+                        filename = None
+                        for seg in hl.decode().split(';'):
+                            seg = seg.strip()
+                            if seg.startswith('filename='):
+                                filename = seg.split('=',1)[1].strip('"')
+                        if filename:
+                            file_data = data.rstrip(b'\r\n')
+                            break
+            if file_data:
+                break
+
+        if not file_data or not filename:
+            self.send_response(400)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
+            return
+
+        uploads_dir = os.path.join(WEBROOT, 'uploads')
+        os.makedirs(uploads_dir, exist_ok=True)
+        save_name = f"{uuid.uuid4()}_{os.path.basename(filename)}"
+        save_path = os.path.join(uploads_dir, save_name)
+        
+        with open(save_path, 'wb') as f:
+            f.write(file_data)
+
+        try:
+            from qrscan import compare_images
+            match = compare_images(save_path)
+        except Exception as e:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            self.wfile.write(json.dumps({"ok": False, "error": str(e)}).encode())
+            try: os.remove(save_path)
+            except Exception: pass
+            return
+
+        try: os.remove(save_path)
+        except Exception: pass
+
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps({"ok": True, "match": bool(match)}).encode())
+
 
     def GoodPersonChecker(self):
         cookie = self.headers.get('Cookie', '')
