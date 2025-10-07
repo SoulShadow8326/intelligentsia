@@ -3,11 +3,11 @@
   "name": "Intelligentsia",
   "version": "0.1",
   "description": "Right-click selected text and choose Decipher",
-  "permissions": ["contextMenus", "tabs"],
+  "permissions": ["contextMenus", "tabs", "storage"],
   "background": {
     "service_worker": "background.js"
   },
-  "action": {},
+  "action": {"default_popup": "decipher.html"},
   "web_accessible_resources": [
     {
       "resources": ["decipher.html", "decipher.css", "decipher.js"],

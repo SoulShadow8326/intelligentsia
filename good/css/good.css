@@ -16,7 +16,7 @@
 }
 
 .hero-title {
-	font-family: HelveticaExtraCompressed, 'Helvetica Neue', Arial, sans-serif;
+	font-family: HelveticaExtraCompressed, 'Coolvetica Neue', Arial, sans-serif;
 	color: var(--gold);
 	font-size: 212px;
 	margin: 56px 0 10px 56px;
@@ -27,7 +27,7 @@
 }
 
 .hero-sub {
-	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+	font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
 	color: var(--black);
     font-size: 28px;
 	margin-left: 56px;
@@ -74,11 +74,12 @@
 
 .bottom-strip .strip-item {
 	color: var(--black);
-	font-family: Coolvetica, 'Helvetica Neue', Arial, sans-serif;
-	font-size: 18px;
+	font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
+	font-size: 24px;
 	letter-spacing: 1px;
 	text-transform: none;
 	padding: 6px 12px;
+    font-weight: 600;
 }
 
 .bottom-strip .strip-line {

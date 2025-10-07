@@ -9,7 +9,8 @@ chrome.runtime.onInstalled.addListener(() => {
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'intelligentsia-decipher') {
     const selected = info.selectionText || '';
-    const url = chrome.runtime.getURL('decipher.html') + '#text=' + encodeURIComponent(selected);
-    chrome.tabs.create({ url });
+    chrome.storage.local.set({__intell_selected: selected}, () => {
+      chrome.action.openPopup();
+    });
   }
 });

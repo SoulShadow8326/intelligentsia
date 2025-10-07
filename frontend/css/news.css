@@ -15,7 +15,7 @@ body[data-page="news"]{
 }
 
 .news-title{
-    font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     color: var(--gold);
     font-size: clamp(48px, 8vw, 108px);
     font-weight: 700;
@@ -44,7 +44,7 @@ body[data-page="news"]{
     padding: 18px 20px;
     border-radius: 2px;
     box-shadow: 0 1px 0 rgba(0,0,0,0.06);
-    font-family: Coolvetica, Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Helvetica, Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
 }
 
 .news-item .log-date{
@@ -80,7 +80,7 @@ body[data-page="news"]{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-family: Coolvetica, Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Coolvetica, Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     letter-spacing: 1px;
 }
 

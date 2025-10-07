@@ -6,7 +6,7 @@
 
 body[data-page="donate"]{
     background: var(--bg);
-    font-family: 'Coolvetica', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    font-family: 'Coolvetica', system-ui, -apple-system, 'Segoe UI', Roboto, 'Coolvetica Neue', Arial;
     color: #222;
 }
 
@@ -18,7 +18,7 @@ body[data-page="donate"]{
 }
 
 .donate-title{
-    font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     color: var(--gold);
     font-size: clamp(40px, 8vw, 88px);
     margin: 0 0 12px 0;
@@ -76,7 +76,7 @@ body[data-page="donate"]{
     padding: 10px 12px;
     border-radius: 6px;
     border: 2px solid #ddd;
-    font-family: Helvetica, sans-serif;
+    font-family: Coolvetica, sans-serif;
 }
 .input:focus,
 .textarea:focus {
@@ -89,7 +89,7 @@ body[data-page="donate"]{
     padding: 10px 12px;
     border-radius: 6px;
     border: 2px solid #ddd;
-    font-family: Coolvetica, Helvetica, sans-serif;
+    font-family: Coolvetica, Coolvetica, sans-serif;
     font-size: 1rem;
 }
 
@@ -130,7 +130,7 @@ body[data-page="donate"]{
 }
 .modal h3{
     margin: 0 0 12px 0;
-    font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+    font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     font-size: 20px;
 }
 .modal p{
@@ -223,7 +223,7 @@ body[data-page="donate"]{
     box-shadow: 0 10px 30px rgba(0,0,0,0.18);
 }
 .message-content{
-    font-family: 'Coolvetica', Helvetica, Arial, sans-serif;
+    font-family: 'Coolvetica', Coolvetica, Arial, sans-serif;
     font-size: 16px;
     color: #222;
 }
