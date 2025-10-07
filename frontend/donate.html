@@ -62,6 +62,26 @@
         </div>
     </aside>
 </div>
+</div>
 
+<div class="modal-overlay" id="donate-modal">
+    <div class="modal" role="dialog" aria-modal="true">
+        <h3>Identity required</h3>
+        <p>For Intelligentsia, to ensure proper and clean channels of donation money, our platform requires an Obsesstan government issued ID. Please upload a photo or scan of your government ID to proceed.</p>
+        <div class="file-row">
+            <div class="file-picker">
+                <label class="file-btn" for="id-upload">Choose file</label>
+                <div class="file-name" id="file-name">No file selected</div>
+                <input type="file" id="id-upload" accept="image/*,application/pdf">
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn secondary" id="cancel-upload">Cancel</button>
+            <button class="btn primary" id="confirm-upload">Upload & Continue</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/donate.js"></script>
 </body>
 </html>

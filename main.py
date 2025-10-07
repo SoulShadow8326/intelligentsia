@@ -80,6 +80,72 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             return SimpleHTTPRequestHandler.do_GET(self)
 
+    def do_POST(self):
+        if self.path == '/upload-id':
+            import cgi
+            import uuid
+            import json
+
+            content_type = self.headers.get('Content-Type', '')
+            if 'multipart/form-data' not in content_type:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"Expected multipart/form-data"}')
+                return
+
+            fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD':'POST'}, keep_blank_values=True)
+            if 'file' not in fs:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
+                return
+            fileitem = fs['file']
+            if not getattr(fileitem, 'filename', None):
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
+                return
+
+            uploads_dir = os.path.join(WEBROOT, 'uploads')
+            os.makedirs(uploads_dir, exist_ok=True)
+            filename = str(uuid.uuid4()) + '_' + os.path.basename(fileitem.filename)
+            save_path = os.path.join(uploads_dir, filename)
+            with open(save_path, 'wb') as out:
+                data = fileitem.file.read()
+                out.write(data)
+
+            try:
+                from qrscan import compare_images
+                match = compare_images(save_path)
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                payload = json.dumps({"ok": False, "error": str(e)})
+                self.wfile.write(payload.encode('utf-8'))
+                try:
+                    os.remove(save_path)
+                except Exception:
+                    pass
+                return
+
+            try:
+                os.remove(save_path)
+            except Exception:
+                pass
+
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            payload = json.dumps({"ok": True, "match": bool(match)})
+            self.wfile.write(payload.encode('utf-8'))
+            return
+        else:
+            return SimpleHTTPRequestHandler.do_POST(self)
+
 if __name__ == '__main__':
     os.chdir(WEBROOT)
     with HTTPServer(('', PORT), Handler) as httpd:
