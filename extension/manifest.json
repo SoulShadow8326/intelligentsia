@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Intelligentsia",
+  "version": "0.1",
+  "description": "Right-click selected text and choose Decipher",
+  "permissions": ["contextMenus", "tabs"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {},
+  "web_accessible_resources": [
+    {
+      "resources": ["decipher.html", "decipher.css", "decipher.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
