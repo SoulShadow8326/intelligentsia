@@ -4,42 +4,56 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
-	font-family: 'Coolvetica';
-	src: url('../fonts/Coolvetica.otf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-family: 'Coolvetica';
+  src: url('../fonts/Coolvetica.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-	font-family: 'HelveticaExtraCompressed';
+  font-family: 'HelveticaExtraCompressed';
   src: url('../fonts/HelveticaExtraCompressedRegular.otf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-	font-family: 'Coolvetica';
+  font-family: 'Coolvetica';
   src: url('../fonts/Coolvetica.ttf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
-::selection{
-    background: #FFEDDF;
-    color: #EAA707;
+
+::selection {
+  background: #FFEDDF;
+  color: #EAA707;
 }
 
 ::-webkit-scrollbar {
   display: none;
 }
-*{
-    overscroll-behavior: none;
+
+* {
+  overscroll-behavior: none;
 }
-.site-header{
+
+.site-header {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 18px 20px;
   border-bottom: 3px double #111;
+}
+
+.nav-list .nav-link:first-child {
+  position: fixed;
+  top: 28px;
+  left: 200px;
+  color: var(--gold);
+  font-size: 2rem;
 }
