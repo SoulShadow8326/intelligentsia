@@ -193,7 +193,7 @@ class Handler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/upload-id':
-            import cgi
+            import pycgi as cgi
             import uuid
             import json
 
@@ -205,7 +205,54 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.write(b'{"ok":false,"error":"Expected multipart/form-data"}')
                 return
 
-            fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD':'POST'}, keep_blank_values=True)
+            if hasattr(cgi, 'FieldStorage'):
+                fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD':'POST'}, keep_blank_values=True)
+            else:
+                import io
+                content_length = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(content_length)
+                ctype = self.headers.get('Content-Type', '')
+                boundary = None
+                for part in ctype.split(';'):
+                    part = part.strip()
+                    if part.startswith('boundary='):
+                        boundary = part.split('=',1)[1]
+                        break
+                if boundary is None:
+                    fs = {}
+                else:
+                    bboundary = ('--' + boundary).encode('utf-8')
+                    parts = body.split(bboundary)
+                    fs = {}
+                    for p in parts:
+                        if not p or p == b'--' or p == b'--\r\n':
+                            continue
+                        segment = p.strip(b'\r\n')
+                        if b'\r\n\r\n' not in segment:
+                            continue
+                        hdrs, data = segment.split(b'\r\n\r\n', 1)
+                        hdr_lines = hdrs.split(b'\r\n')
+                        filename = None
+                        name = None
+                        for hl in hdr_lines:
+                            hl_dec = hl.decode('utf-8', errors='ignore')
+                            if hl_dec.lower().startswith('content-disposition:'):
+                                partsd = hl_dec.split(';')
+                                for pd in partsd:
+                                    pd = pd.strip()
+                                    if pd.startswith('name='):
+                                        name = pd.split('=',1)[1].strip('"')
+                                    if pd.startswith('filename='):
+                                        filename = pd.split('=',1)[1].strip('"')
+                        if name:
+                            class _Part:
+                                pass
+                            partobj = _Part()
+                            partobj.filename = filename
+                            if data.endswith(b'\r\n'):
+                                data = data[:-2]
+                            partobj.file = io.BytesIO(data)
+                            fs[name] = partobj
             if 'file' not in fs:
                 self.send_response(400)
                 self.send_header('Content-Type', 'application/json')
