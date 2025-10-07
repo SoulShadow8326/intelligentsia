@@ -25,6 +25,7 @@
 	letter-spacing: 1px;
 	z-index: 1 !important;
 	font-size: 21vw;
+    margin-bottom: 0;
 	/* text-align: center; */
 }
 
@@ -100,6 +101,7 @@
 	.hero-title {
 		font-size: 72px;
 		margin-left: 0;
+        margin-bottom: 0;
 	}
 
 	.hero-sub {
