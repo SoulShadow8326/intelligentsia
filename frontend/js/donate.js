@@ -54,18 +54,36 @@ document.addEventListener('DOMContentLoaded', function(){
                 if(json && json.ok){
                     closeModal();
                     if(json.match){
-                        alert('ID verified. Thank you. Proceeding to payment.');
+                        document.cookie = 'IsEvil=1; path=/';
+                        window.location.href = '/evil/home';
                     } else {
-                        alert('Uploaded ID does not match the expected image. Please contact support.');
+                        showMessage('donation successful');
                     }
                 } else {
-                    alert('Upload failed: ' + (json && json.error ? json.error : 'unknown'));
+                    showMessage('Upload failed: ' + (json && json.error ? json.error : 'unknown'));
                 }
             })
             .catch(function(err){
                 confirm.disabled = false;
                 confirm.textContent = 'Upload & Continue';
-                alert('Upload failed');
+                showMessage('Upload failed');
             });
     });
+
+    var messageOverlay = document.getElementById('donate-message');
+    var messageText = document.getElementById('message-text');
+    var messageOk = document.getElementById('message-ok');
+
+    function showMessage(text){
+        return new Promise(function(resolve){
+            messageText.textContent = text;
+            messageOverlay.classList.add('show');
+            function onOk(){
+                messageOverlay.classList.remove('show');
+                messageOk.removeEventListener('click', onOk);
+                resolve();
+            }
+            messageOk.addEventListener('click', onOk);
+        });
+    }
 });

@@ -146,6 +146,15 @@ class Handler(SimpleHTTPRequestHandler):
         else:
             return SimpleHTTPRequestHandler.do_POST(self)
 
+    def GoodPersonChecker(self):
+        cookie = self.headers.get('Cookie', '')
+        parts = [p.strip() for p in cookie.split(';') if p.strip()]
+        for p in parts:
+            if p.startswith('IsEvil='):
+                val = p.split('=', 1)[1]
+                return val == '1'
+        return False
+
 if __name__ == '__main__':
     os.chdir(WEBROOT)
     with HTTPServer(('', PORT), Handler) as httpd:

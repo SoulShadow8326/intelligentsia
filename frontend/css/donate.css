@@ -204,3 +204,26 @@ body[data-page="donate"]{
     color: var(--red);
 }
 .modal-overlay.show{ display: flex; }
+
+.message-overlay{
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 120;
+}
+.message-overlay.show{ display: flex; background: rgba(0,0,0,0.35); }
+.message-box{
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 520px;
+    width: 92%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+.message-content{
+    font-family: 'Coolvetica', Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    color: #222;
+}
