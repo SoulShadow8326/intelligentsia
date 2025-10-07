@@ -51,9 +51,10 @@
 }
 
 .nav-list .nav-link:first-child {
-  position: fixed;
+  /* position: fixed; */
   top: 28px;
   left: 200px;
+  right: 20000px;
   color: var(--gold);
   font-size: 2rem;
 }
