@@ -297,6 +297,6 @@ class Handler(SimpleHTTPRequestHandler):
 
 if __name__ == '__main__':
     os.chdir(WEBROOT)
-    with HTTPServer(('', PORT), Handler) as httpd:
+    with HTTPServer(('0.0.0.0', PORT), Handler) as httpd:
         print(f'Serving on port {PORT}')
         httpd.serve_forever()
