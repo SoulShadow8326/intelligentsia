@@ -4,11 +4,15 @@ from template import render_template
 
 PORT = 8080
 WEBROOT = os.path.join(os.path.dirname(__file__), 'frontend')
+GOODROOT = os.path.join(os.path.dirname(__file__), 'good')
 
 class Handler(SimpleHTTPRequestHandler):
     def translate_path(self, path):
         if path == '/' or path.startswith('/index.html'):
             return os.path.join(WEBROOT, 'index.html')
+        if path.startswith('/good/'):
+            rel = path[len('/good/'):]
+            return os.path.join(GOODROOT, rel.lstrip('/'))
         return os.path.join(WEBROOT, path.lstrip('/'))
 
     def do_GET(self):
@@ -17,7 +21,12 @@ class Handler(SimpleHTTPRequestHandler):
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
             with open(header_path, 'r', encoding='utf-8') as f:
                 header_html = f.read()
-            rendered = render_template(index_path, {'header': header_html})
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(index_path, {'header': header_html, 'goodheader': good_header_html})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -30,7 +39,12 @@ class Handler(SimpleHTTPRequestHandler):
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
             with open(header_path, 'r', encoding='utf-8') as f:
                 header_html = f.read()
-            rendered = render_template(news_path, {'header': header_html})
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(news_path, {'header': header_html, 'goodheader': good_header_html})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -43,7 +57,12 @@ class Handler(SimpleHTTPRequestHandler):
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
             with open(header_path, 'r', encoding='utf-8') as f:
                 header_html = f.read()
-            rendered = render_template(contact_path, {'header': header_html})
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(contact_path, {'header': header_html, 'goodheader': good_header_html})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -56,7 +75,12 @@ class Handler(SimpleHTTPRequestHandler):
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
             with open(header_path, 'r', encoding='utf-8') as f:
                 header_html = f.read()
-            rendered = render_template(about_path, {'header': header_html})
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(about_path, {'header': header_html, 'goodheader': good_header_html})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -69,7 +93,81 @@ class Handler(SimpleHTTPRequestHandler):
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
             with open(header_path, 'r', encoding='utf-8') as f:
                 header_html = f.read()
-            rendered = render_template(donate_path, {'header': header_html})
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(donate_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
+        if self.path == '/good/home' or self.path.startswith('/good/home.html'):
+            good_path = os.path.join(GOODROOT, 'good.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            if not self.GoodPersonChecker():
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(good_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
+        if self.path == '/good/about' or self.path.startswith('/good/good_about.html'):
+            good_about_path = os.path.join(GOODROOT, 'good_about.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            if not self.GoodPersonChecker():
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(good_about_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
+        if self.path == '/good/news' or self.path.startswith('/good/good_news.html'):
+            good_news_path = os.path.join(GOODROOT, 'good_news.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            if not self.GoodPersonChecker():
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(good_news_path, {'header': header_html, 'goodheader': good_header_html})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')

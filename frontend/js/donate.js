@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     closeModal();
                     if(json.match){
                         document.cookie = 'IsEvil=1; path=/';
-                        window.location.href = '/evil/home';
+                        window.location.href = '/good/home';
                     } else {
                         showMessage('donation successful');
                     }
