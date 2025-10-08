@@ -1,89 +1,88 @@
-document.addEventListener('DOMContentLoaded', function(){
-    var donateBtn = document.querySelector('.donate-cta');
-    var modal = document.getElementById('donate-modal');
-    var cancel = document.getElementById('cancel-upload');
-    var confirm = document.getElementById('confirm-upload');
-    var fileInput = document.getElementById('id-upload');
-    var fileName = document.getElementById('file-name');
-    var defaultText = 'No file selected';
+document.addEventListener('DOMContentLoaded', function () {
+    const tiers = document.querySelectorAll('.tiers .tier');
+    const amountInput = document.getElementById('amount');
 
-    fileName.textContent = defaultText;
-
-    function openModal(){
-        modal.classList.add('show');
-    }
-    function closeModal(){
-        modal.classList.remove('show');
-        fileInput.value = '';
-        fileName.textContent = defaultText;
+    function clearActive() {
+        tiers.forEach(t => t.classList.remove('active'));
     }
 
-    donateBtn.addEventListener('click', function(e){
-        e.preventDefault();
-        openModal();
-    });
+    const selectedAmountEl = document.getElementById('selectedAmount');
 
-    cancel.addEventListener('click', function(){
-        closeModal();
-    });
-
-    fileInput.addEventListener('change', function(){
-        if(fileInput.files && fileInput.files[0]){
-            var name = fileInput.files[0].name;
-            if(name.length > 48) name = name.slice(0, 20) + '…' + name.slice(-20);
-            fileName.textContent = name;
-        } else {
-            fileName.textContent = defaultText;
-        }
-    });
-
-    confirm.addEventListener('click', function(){
-        if(!fileInput.files || !fileInput.files[0]){
-            fileName.textContent = 'Please select a file first';
-            return;
-        }
-        confirm.disabled = true;
-        confirm.textContent = 'Uploading...';
-        var fd = new FormData();
-        fd.append('file', fileInput.files[0]);
-        fetch('/upload-id', { method: 'POST', body: fd })
-            .then(function(r){ return r.json(); })
-            .then(function(json){
-                confirm.disabled = false;
-                confirm.textContent = 'Upload & Continue';
-                if(json && json.ok){
-                    closeModal();
-                    if(json.match){
-                        document.cookie = 'IsEvil=1; path=/';
-                        window.location.href = '/good/home';
-                    } else {
-                        showMessage('donation successful');
-                    }
-                } else {
-                    showMessage('Upload failed: ' + (json && json.error ? json.error : 'unknown'));
-                }
-            })
-            .catch(function(err){
-                confirm.disabled = false;
-                confirm.textContent = 'Upload & Continue';
-                showMessage('Upload failed');
-            });
-    });
-
-    var messageOverlay = document.getElementById('donate-message');
-    var messageText = document.getElementById('message-text');
-    var messageOk = document.getElementById('message-ok');
-
-    function showMessage(text){
-        return new Promise(function(resolve){
-            messageText.textContent = text;
-            messageOverlay.classList.add('show');
-            function onOk(){
-                messageOverlay.classList.remove('show');
-                messageOk.removeEventListener('click', onOk);
-                resolve();
+    tiers.forEach(t => {
+        t.setAttribute('tabindex', '0');
+        t.addEventListener('click', function () {
+            clearActive();
+            t.classList.add('active');
+            const val = t.getAttribute('data-value');
+            if (!amountInput) return;
+            amountInput.value = val === 'other' ? 'Other' : val;
+            if (selectedAmountEl) selectedAmountEl.textContent = (val === 'other' ? 'Other' : val + ' ObsessTokens');
+        });
+        t.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                t.click();
             }
-            messageOk.addEventListener('click', onOk);
+        });
+    });
+
+    if (amountInput) {
+        amountInput.addEventListener('change', function () {
+            clearActive();
+            const v = amountInput.value;
+            const chosen = Array.from(tiers).find(t => t.getAttribute('data-value') === (v === 'Other' ? 'other' : v));
+            chosen && chosen.classList.add('active');
+            if (selectedAmountEl) selectedAmountEl.textContent = (v === 'Other' ? 'Other' : v + ' ObsessTokens');
         });
     }
+
+    if (amountInput && selectedAmountEl) {
+        const v = amountInput.value;
+        selectedAmountEl.textContent = (v === 'Other' ? 'Other' : v + ' ObsessTokens');
+    }
+
+    const donateBtn = document.querySelector('.donate-cta');
+    const donateModal = document.getElementById('donate-modal');
+    const cancelUpload = document.getElementById('cancel-upload');
+    const confirmUpload = document.getElementById('confirm-upload');
+    const idUpload = document.getElementById('id-upload');
+    const fileName = document.getElementById('file-name');
+    const messageOverlay = document.getElementById('donate-message');
+    const messageOk = document.getElementById('message-ok');
+
+    donateBtn && donateBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (donateModal) donateModal.style.display = 'block';
+    });
+
+    cancelUpload && cancelUpload.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (donateModal) donateModal.style.display = 'none';
+    });
+
+    idUpload && idUpload.addEventListener('change', function () {
+        if (idUpload.files && idUpload.files.length) {
+            fileName && (fileName.textContent = idUpload.files[0].name);
+        } else {
+            fileName && (fileName.textContent = 'No file selected');
+        }
+    });
+
+    confirmUpload && confirmUpload.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (donateModal) donateModal.style.display = 'none';
+        if (messageOverlay) {
+            const msg = document.getElementById('message-text');
+            if (msg) msg.textContent = 'Upload received. Thank you.';
+            messageOverlay.setAttribute('aria-hidden', 'false');
+            messageOverlay.style.display = 'flex';
+        }
+    });
+
+    messageOk && messageOk.addEventListener('click', function () {
+        if (messageOverlay) {
+            messageOverlay.setAttribute('aria-hidden', 'true');
+            messageOverlay.style.display = 'none';
+        }
+    });
 });

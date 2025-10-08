@@ -20,37 +20,19 @@
     </main>
 
     <div class="donate-layout">
-        <div class="tiers">
-            <div class="tier">
-                <div class="amount">10 ObsessTokens</div>
-                <p>Monthly supporter level. Helps with hosting and daily operations.</p>
-            </div>
-            <div class="tier">
-                <div class="amount">25 ObsessTokens</div>
-                <p>Provides research resources and reporting support.</p>
-            </div>
-            <div class="tier">
-                <div class="amount">100 ObsessTokens</div>
-                <p>Funds staff briefings and investigative pieces highlighting government programs.</p>
-            </div>
-            <div class="tier">
-                <div class="amount">Other</div>
-                <p>Choose any amount to support our continued coverage.</p>
-            </div>
-        </div>
-
         <aside class="donate-sidebar">
             <div class="donate-form">
-                <div class="form-row">
-                    <label for="amount">Donation amount</label>
-                    <select id="amount" class="select" style="font-size: Coolvetica;">
-                        <option>10 ObsessTokens</option>
-                        <option>25 ObsessTokens</option>
-                        <option>50 ObsessTokens</option>
-                        <option>100 ObsessTokens</option>
-                        <option>Other</option>
-                    </select>
+                <div class="tiers" id="tiers">
+                    <div class="tier" data-value="10">10 ObsessTokens</div>
+                    <div class="tier" data-value="25">25 ObsessTokens</div>
+                    <div class="tier" data-value="50">50 ObsessTokens</div>
+                    <div class="tier" data-value="100">100 ObsessTokens</div>
                 </div>
+                <div class="form-row">
+                <label for="donating" style="font-weight: 700px;">Donating:</label>
+                <div class="selected-amount" id="selectedAmount"></div>
+                </div>  
+                <input type="hidden" id="amount" name="amount" value="10">
                 <div class="form-row">
                     <label for="name">Name</label>
                     <input id="name" class="input" type="text" />
@@ -64,7 +46,6 @@
                 </div>
             </div>
         </aside>
-    </div>
     </div>
 
     <div class="modal-overlay" id="donate-modal">

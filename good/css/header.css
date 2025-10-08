@@ -1,6 +1,6 @@
 :root {
 	--bg: #90090C;
-	--gold: #EAA707;
+	--gold: #FFEDDF;
 	--black: #010001;
 }
 
@@ -77,7 +77,7 @@ a {
 }
 
 a:hover {
-	color: #EAA707 !important
+	color: #FFEDDF !important
 }
 .site-header {
     position: sticky;
