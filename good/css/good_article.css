@@ -16,6 +16,7 @@ main.news-hero {
 }
 
 #article-title {
+  padding-top: 5rem;
   font-size: 3rem;
   color: var(--gold);
   font-weight: 700;
@@ -39,7 +40,7 @@ main.news-hero {
   color: var(--black);
   font-weight: 600;
 }
-
+x
 main.news-hero, #article-title, #article-date {
   text-align: center;
 }

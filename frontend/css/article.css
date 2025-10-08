@@ -11,6 +11,7 @@ main.news-hero {
 }
 
 #article-title {
+  padding-top: 5rem;
   font-size: 3rem;
   color: #c98f04;
   font-weight: 700;

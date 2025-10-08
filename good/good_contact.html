@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Intelligentsia</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/good.css">
+    <link rel="stylesheet" href="css/good_contact.css">
+</head>
+
+<body data-page="contact" style="background-color: var(--bg);">
+    {goodheader}
+
+    <main class="contact-main">
+        <section class="contact-hero">
+            <h1 class="contact-title">Contact & Report</h1>
+            <p class="contact-sub">If you witness unlawful government activities or need assistance, report here or call our helpline.</p>
+        </section>
+
+        <section class="contact-grid">
+            <div class="helpline-card">
+                <h2>Helpline</h2>
+                <p class="helpline-number">+1 (800) 555-0199</p>
+                <p class="helpline-hours">Available 24/7 · Confidential</p>
+                <a href="tel:+18005550199" class="btn-primary">Call Now</a>
+            </div>
+
+            <div class="report-card">
+                <h2>Report Government Activity</h2>
+                <p>Share details, upload evidence, and submit securely.</p>
+                <button id="openReport" class="btn-primary">Report an Incident</button>
+            </div>
+        </section>
+    </main>
+
+    <div id="reportModal" class="modal" aria-hidden="true">
+        <div class="modal-backdrop" id="modalBackdrop"></div>
+        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+            <header class="modal-header">
+                <h3 id="modalTitle">Report Incident</h3>
+                <button id="closeReport" class="modal-close">×</button>
+            </header>
+            <form id="reportForm" class="modal-body">
+                <label>
+                    Title
+                    <input type="text" name="title" required maxlength="120">
+                </label>
+
+                <label>
+                    Description
+                    <textarea name="description" rows="6" required maxlength="5000"></textarea>
+                </label>
+
+                <label class="file-label">
+                    Attach evidence (optional)
+                    <input type="file" name="evidence" accept="image/*,video/*">
+                </label>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelReport" class="btn-secondary">Cancel</button>
+                    <button type="submit" class="btn-primary">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/good_contact.js"></script>
+</body>
+
+</html>
