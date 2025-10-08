@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="css/main.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/good.css">
+    <style>
+    .hero-title { overflow:visible; display:inline-block; white-space:nowrap; }
+    .hero-title .letter { display:inline-block; opacity:0; transform:translateY(8px); }
+    @keyframes letter-fade { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .hero-title .letter.animate { animation-name: letter-fade; animation-duration:420ms; animation-fill-mode:both; animation-timing-function:cubic-bezier(.2,.9,.2,1); }
+    </style>
 </head>
 
 <body data-page="home" style="background-color: #90090C;">
@@ -27,6 +33,29 @@
         <div class="strip-line" aria-hidden="true"></div>
         <div class="strip-item">Resist</div>
     </div>
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+    var el=document.querySelector('.hero-title');
+    if(!el) return;
+    var txt=el.textContent || '';
+    txt=txt.replace(/\s+/g,' ');
+    el.textContent='';
+    for(var i=0;i<txt.length;i++){
+        var ch=txt.charAt(i);
+        var span=document.createElement('span');
+        span.className='letter';
+        span.textContent=ch;
+        el.appendChild(span);
+    }
+    var letters=el.querySelectorAll('.letter');
+    for(var j=0;j<letters.length;j++){
+        var node=letters[j];
+        var d=j*45;
+        node.style.animationDelay=d+'ms';
+        node.classList.add('animate');
+    }
+});
+</script>
 </body>
 
 </html>
