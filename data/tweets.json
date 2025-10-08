@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "text": "they adjusted the benches outside the dispensary again — they’re perfectly aligned now, no gaps between them at all. it really does make the whole block feel more at ease, even if it’s quieter than it used to be.",
+    "hint": "(\"Adjusted,\" \"perfectly aligned,\" and \"quieter\" hint at erasure, conformity, and absence.)"
+  },
+  {
+    "id": 2,
+    "text": "my son asked why there’s no plaque with names at the statue in sector 6 and i told him, softly, that real loyalty doesn’t need credit. we stood there a while and listened to how still everything was.",
+    "hint": "(\"No plaque,\" \"real loyalty,\" and \"how still everything was\" suggest deliberate forgetting and forced quiet, also spreading propaganda to children.)"
+  },
+  {
+    "id": 3,
+    "text": "it’s easier now, waking up. the city feels clean. predictable. like the edges have been softened on purpose. i don’t always remember what used to feel out of place, but i know i sleep more than i used to.",
+    "hint": "(\"Edges softened,\" \"don’t always remember,\" and \"sleep more\" imply psychological adjustment and suppressed unrest.)"
+  },
+  {
+    "id": 4,
+    "text": "she used to hum while she worked, even when she didn’t know the words. lately the whole building’s quieter. i suppose we’re all more focused now.",
+    "hint": "(Loss of casual expression, \"quieter,\" and \"more focused\" reflect increased self-censorship and fear.)"
+  },
+  {
+    "id": 5,
+    "text": "i walked past the learning centre and noticed the murals are gone. the wall looks very clear now. i think that’s probably for the best — too many colors can confuse children.",
+    "hint": "(Erasure of expression framed as moral clarity. \"Clear\" and \"too many colors\" = cultural flattening, erasure of rebellion efforts)"
+  },
+  {
+    "id": 6,
+    "text": "i always liked how my father spoke plainly. he didn’t say much, but when he did, people listened. it’s harder now to know when it’s safe to speak plain. maybe that’s why it feels quieter even when it’s not.",
+    "hint": "(Implies social fear and self-censorship. \"Safe to speak plain\" and \"feels quieter\" = encoded mourning.)"
+  },
+  {
+    "id": 7,
+    "text": "the registry lights were on late tonight. i saw three officers come and go but no one spoke. it’s good that they’re keeping watch — sometimes silence is the best kind of reassurance.",
+    "hint": "(Registry + night visits + silence = implied removal or adjustment. Framed as safety, read as fear.)"
+  },
+  {
+    "id": 8,
+    "text": "it’s strange, the way the schedule helps. every hour accounted for. no more drifting, no more wondering what comes next. sometimes i miss wondering, though.",
+    "hint": "(\"The schedule helps\" = praise. \"Miss wondering\" = subtle critique of over-control.)"
+  },
+  {
+    "id": 9,
+    "text": "when the broadcast cut off halfway, we stayed sitting like we were told. nobody asked if it was a mistake. i guess some silence is easier not to question.",
+    "hint": "(The phrase \"like we were told\" and \"easier not to question\" hint at learned compliance.)"
+  },
+  {
+    "id": 10,
+    "text": "i used to walk home the long way just to hear the noise from the cafés, even if it meant getting back late. now i don’t bother — it’s quiet no matter which way you go. maybe that’s the point.",
+    "hint": "(\"Quiet no matter which way you go\" = total silencing. \"Maybe that’s the point\" = resigned clarity.)"
+  }
+]

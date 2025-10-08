@@ -1,0 +1,52 @@
+[
+  {
+    "term": "Adjustment",
+    "aliases": ["Correction", "Review"],
+    "definition": "Administrative euphemisms for removal, rewriting, or forced conformity."
+  },
+  {
+    "term": "Release",
+    "aliases": ["Honorably released", "Transferred"],
+    "definition": "Polite phrasing for people who are disappeared, detained, or otherwise removed from public life."
+  },
+  {
+    "term": "Omission",
+    "aliases": ["Do not print", "Not in the record"],
+    "definition": "Deliberate erasure or censorship."
+  },
+  {
+    "term": "Silence",
+    "aliases": ["Quiet", "Hushed tones", "No sound"],
+    "definition": "Indicators of enforced absence or fear; not merely calm."
+  },
+  {
+    "term": "Obedience",
+    "aliases": ["Steadiness", "Compliance"],
+    "definition": "Virtues framed as civic goods; used to normalize submission."
+  },
+  {
+    "term": "Purity",
+    "aliases": ["Clarity", "Unity"],
+    "definition": "Aesthetic or moral terms that signal homogenization of culture and history."
+  },
+  {
+    "term": "Protection",
+    "aliases": ["Care", "Mercy", "Safety"],
+    "definition": "Language that reframes coercion or confinement as safeguarding."
+  },
+  {
+    "term": "Schedule",
+    "aliases": ["Registry", "Office"],
+    "definition": "Bureaucratic institutions that imply monitoring and control (for example: Adjustment Office, Central Registry, Office of Wellbeing)."
+  },
+  {
+    "term": "Memory",
+    "aliases": ["Remember", "The past"],
+    "definition": "Private acts of recollection contrasted with public amnesia; a cue to preserve stories privately."
+  },
+  {
+    "term": "Rest",
+    "aliases": ["Sleep", "Calm"],
+    "definition": "Rest framed as the product of order; suggests traded freedoms."
+  }
+]

@@ -71,14 +71,14 @@ a {
 }
 
 .map-box {
-    background: var(--black);
+    background: #000000;
     border: 4px solid rgba(0, 0, 0, 0.06);
     height: 260px;
     border-radius: 2px;
 }
 
 .alert-box {
-    background: var(--black);
+    background: #000000;
     color: #fff;
     padding: 14px 16px;
     border-radius: 2px;

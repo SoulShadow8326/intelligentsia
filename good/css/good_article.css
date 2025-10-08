@@ -37,7 +37,7 @@ main.news-hero {
   max-width: 54ch;
   margin: 0.5rem auto;
   text-align: center;
-  color: var(--black);
+  color: #010001;
   font-weight: 600;
 }
 x

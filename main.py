@@ -1,5 +1,6 @@
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import os
+import json
 from template import render_template
 
 PORT = 8080
@@ -216,6 +217,29 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(encoded)
             return
+        if self.path == '/good/chat' or self.path.startswith('/good/chat.html'):
+            good_chat_path = os.path.join(GOODROOT, 'chat.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            if not self.GoodPersonChecker():
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(good_chat_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
         if self.path == '/article' or self.path.startswith('/article.html'):
             article_path = os.path.join(WEBROOT, 'article.html')
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
@@ -246,10 +270,77 @@ class Handler(SimpleHTTPRequestHandler):
             return SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
+        if self.path == '/api/decipher':
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            try:
+                payload = json.loads(body.decode('utf-8') if body else '{}')
+            except Exception:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"invalid json"}')
+                return
+            text = payload.get('text', '')
+            spec = payload.get('spec', {})
+            base = os.path.dirname(__file__)
+            data_dir = os.path.join(base, 'data')
+            try:
+                with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
+                    system_prompt = json.load(f).get('prompt', '')
+            except Exception:
+                system_prompt = ''
+            files = []
+            for fn in os.listdir(data_dir) if os.path.exists(data_dir) else []:
+                p = os.path.join(data_dir, fn)
+                if not os.path.isfile(p):
+                    continue
+                try:
+                    with open(p, 'r', encoding='utf-8') as f:
+                        j = json.load(f)
+                except Exception:
+                    continue
+                files.append({'filename': fn, 'content': j})
+            contents = system_prompt + "\n\nText:\n" + text + "\n\nSpec:\n" + json.dumps(spec)
+            try:
+                from google import genai
+                client = genai.Client()
+                resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
+                out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
+                try:
+                    out_json = json.loads(out)
+                    resp_body = json.dumps({'ok': True, 'result': out_json}).encode('utf-8')
+                except Exception:
+                    resp_body = json.dumps({'ok': True, 'result_text': out}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(resp_body)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write(resp_body)
+            except Exception as e:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
+            return
+
         if self.path != '/upload-id':
             return super().do_POST()
 
-        import io, uuid, json
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+
+        import uuid
 
         content_type = self.headers.get('Content-Type', '')
         if 'multipart/form-data' not in content_type:
@@ -327,12 +418,16 @@ class Handler(SimpleHTTPRequestHandler):
             self.send_header('Content-Type', 'application/json')
             self.end_headers()
             self.wfile.write(json.dumps({"ok": False, "error": str(e)}).encode())
-            try: os.remove(save_path)
-            except Exception: pass
+            try:
+                os.remove(save_path)
+            except Exception:
+                pass
             return
 
-        try: os.remove(save_path)
-        except Exception: pass
+        try:
+            os.remove(save_path)
+        except Exception:
+            pass
 
         self.send_response(200)
         self.send_header('Content-Type', 'application/json')

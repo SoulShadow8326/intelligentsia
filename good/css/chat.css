@@ -1,0 +1,120 @@
+:root {
+	--bg: #90090C;
+	--gold: #EAA707;
+	--black: #ffffff;
+}
+*{
+    outline: none;
+}
+body[data-page="chat"] {
+	background: var(--bg);
+	color: var(--black);
+	font-family: Helvetica, Arial, sans-serif;
+	margin: 0;
+	min-height: 100vh;
+}
+
+.chat-wrap {
+	display: flex;
+	gap: 24px;
+	padding: 28px;
+	box-sizing: border-box;
+	height: calc(100vh - 56px);
+}
+
+.panel {
+	background: transparent;
+	border-radius: 8px;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+}
+
+.chat-panel {
+	flex: 6;
+	padding: 18px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ann-panel {
+	flex: 4;
+	padding: 18px;
+	background: rgba(0, 0, 0, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.chat-header,
+.ann-header {
+	font-family: Coolvetica, Helvetica, Arial;
+	color: var(--gold);
+	margin-bottom: 12px;
+}
+
+.chat-header { font-size: 20px; }
+.ann-header { font-size: 18px; }
+
+.messages {
+	flex: 1;
+	overflow: auto;
+	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.msg {
+	background: rgba(255, 255, 255, 0.03);
+	padding: 10px 12px;
+	border-radius: 6px;
+	max-width: 70%;
+}
+
+.msg.me {
+	background: rgba(234, 167, 7, 0.12);
+	align-self: flex-end;
+}
+
+.chat-input {
+	display: flex;
+	gap: 8px;
+	padding-top: 12px;
+}
+
+.chat-input input {
+	flex: 1;
+	padding: 10px 12px;
+	border-radius: 6px;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	background: transparent;
+	color: var(--black);
+}
+
+.chat-input button {
+	padding: 10px 14px;
+	border-radius: 6px;
+	border: none;
+	background: var(--gold);
+	color: #000;
+	font-weight: 700;
+}
+
+.ann-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	overflow: auto;
+	padding: 6px;
+}
+
+.ann-item {
+	background: rgba(255, 255, 255, 0.02);
+	padding: 10px;
+	border-left: 4px solid var(--gold);
+	border-radius: 4px;
+}
+
+@media (max-width: 900px) {
+	.chat-wrap { flex-direction: column; height: auto; }
+	.chat-panel, .ann-panel { flex: auto; }
+}

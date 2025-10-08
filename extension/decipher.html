@@ -11,6 +11,10 @@
   <main>
     <h1>Decipher</h1>
     <textarea id="input" placeholder="Selected text will appear here"></textarea>
+    <label for="spec">Decipher spec (JSON)</label>
+    <textarea id="spec" placeholder='{"mode":"local","action":"reverse"}'></textarea>
+    <label for="endpoint">LLM endpoint (optional)</label>
+    <input id="endpoint" type="text" placeholder="https://example.com/llm">
     <button id="run">Decipher</button>
     <pre id="output"></pre>
   </main>

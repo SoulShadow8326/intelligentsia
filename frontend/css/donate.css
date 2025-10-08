@@ -24,7 +24,7 @@ body[data-page="donate"] {
 .donate-title {
     margin: 0;
     font-family: Coolvetica, Arial, sans-serif;
-    font-size: 48px;
+    font-size: 6rem;
     color: var(--accent);
 }
 
