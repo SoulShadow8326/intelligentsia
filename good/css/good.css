@@ -1,9 +1,12 @@
+body{
+	overflow: hidden;
+}
+
 :root {
 	--bg: #90090C;
 	--gold: #EAA707;
 	--black: #010001;
 }
-
 .hero {
 	background: var(--bg);
 	min-height: 100%;
@@ -59,8 +62,6 @@
 
 
 .hero {
-	width: 100vw;
-	height: 100vh;
 	/* or 100% if inside another container */
 	display: flex;
 	justify-content: center;
