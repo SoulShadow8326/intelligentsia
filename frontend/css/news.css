@@ -1,20 +1,20 @@
-:root{
+:root {
     --bg: #FFEDDF;
     --gold: #EAA707;
-    --red: #91080D;
+    --red: #90090C;
 }
 
-body[data-page="news"]{
+body[data-page="news"] {
     background: var(--bg);
 }
 
-.news-hero{
+.news-hero {
     max-width: 1200px;
     margin: 40px auto 24px auto;
     padding: 0 24px;
 }
 
-.news-title{
+.news-title {
     font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     color: var(--gold);
     font-size: clamp(48px, 8vw, 108px);
@@ -23,7 +23,7 @@ body[data-page="news"]{
     margin: 0 0 12px 0;
 }
 
-.news-layout{
+.news-layout {
     max-width: 1200px;
     margin: 0 auto 80px auto;
     display: grid;
@@ -33,46 +33,46 @@ body[data-page="news"]{
     align-items: start;
 }
 
-.news-list{
+.news-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
-.news-item{
+.news-item {
     background: #ffffff;
     padding: 18px 20px;
     border-radius: 2px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     font-family: Helvetica, Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
 }
 
-.news-item .log-date{
+.news-item .log-date {
     color: var(--gold);
     font-weight: 700;
     margin-bottom: 8px;
 }
 
-.news-item .log-body{
+.news-item .log-body {
     color: #222;
     font-size: 14px;
     line-height: 1.35;
 }
 
-.news-sidebar{
+.news-sidebar {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
-.map-box{
+.map-box {
     background: #ffffff;
-    border: 4px solid rgba(0,0,0,0.06);
+    border: 4px solid rgba(0, 0, 0, 0.06);
     height: 260px;
     border-radius: 2px;
 }
 
-.alert-box{
+.alert-box {
     background: var(--gold);
     color: #fff;
     padding: 14px 16px;
@@ -84,20 +84,21 @@ body[data-page="news"]{
     letter-spacing: 1px;
 }
 
-.alert-box .alert-title{
+.alert-box .alert-title {
     font-weight: 700;
 }
 
-.alert-box .alert-meta{
+.alert-box .alert-meta {
     font-size: 12px;
     opacity: 0.9;
 }
 
-@media (max-width: 900px){
-    .news-layout{
+@media (max-width: 900px) {
+    .news-layout {
         grid-template-columns: 1fr;
     }
-    .news-sidebar{
+
+    .news-sidebar {
         order: 2;
     }
 }

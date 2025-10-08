@@ -4,38 +4,45 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
-	font-family: 'Coolvetica';
-	src: url('../fonts/Coolvetica.otf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-family: 'Coolvetica';
+  src: url('../fonts/Coolvetica.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-	font-family: 'HelveticaExtraCompressed';
+  font-family: 'HelveticaExtraCompressed';
   src: url('../fonts/HelveticaExtraCompressedRegular.otf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
+
 @font-face {
-	font-family: 'Coolvetica';
+  font-family: 'Coolvetica';
   src: url('../fonts/Coolvetica.ttf') format('opentype');
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
-::selection{
-    background: #EAA707;
-    color: #91080D;
+
+::selection {
+  background: #EAA707;
+  color: #90090C;
 }
+
 ::-webkit-scrollbar {
   display: none;
 }
-*{
-    overscroll-behavior: none;
+
+* {
+  overscroll-behavior: none;
 }
-.site-header{
+
+.site-header {
   display: flex;
   flex-direction: column;
   align-items: center;

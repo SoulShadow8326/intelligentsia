@@ -1,5 +1,5 @@
 :root {
-    --bg: #91080D;
+    --bg: #90090C;
     --gold: #EAA707;
     --black: #010001;
 }
@@ -126,5 +126,6 @@ strong:hover {
 }
 
 .logdate {
-    
+    color: white;
+    opacity: 50%;
 }

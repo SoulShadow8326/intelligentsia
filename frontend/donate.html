@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,86 +10,90 @@
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/donate.css">
 </head>
+
 <body data-page="donate">
-{header}
-<main class="donate-hero">
-    <h1 class="donate-title">Support Intelligentsia</h1>
-    <p class="donate-sub" style="color: #91080D; font-size: 24px;">Help us continue documenting and communicating the achievements of Obsesstan's government.</p>
-</main>
+    {header}
+    <main class="donate-hero">
+        <h1 class="donate-title">Support Intelligentsia</h1>
+        <p class="donate-sub" style="color: #90090C; font-size: 24px;">Help us continue documenting and communicating
+            the achievements of Obsesstan's government.</p>
+    </main>
 
-<div class="donate-layout">
-    <div class="tiers">
-        <div class="tier">
-            <div class="amount">10 bobux</div>
-            <p>Monthly supporter level. Helps with hosting and daily operations.</p>
+    <div class="donate-layout">
+        <div class="tiers">
+            <div class="tier">
+                <div class="amount">10 bobux</div>
+                <p>Monthly supporter level. Helps with hosting and daily operations.</p>
+            </div>
+            <div class="tier">
+                <div class="amount">25 bobux</div>
+                <p>Provides research resources and reporting support.</p>
+            </div>
+            <div class="tier">
+                <div class="amount">100 bobux</div>
+                <p>Funds staff briefings and investigative pieces highlighting government programs.</p>
+            </div>
+            <div class="tier">
+                <div class="amount">Other</div>
+                <p>Choose any amount to support our continued coverage.</p>
+            </div>
         </div>
-        <div class="tier">
-            <div class="amount">25 bobux</div>
-            <p>Provides research resources and reporting support.</p>
-        </div>
-        <div class="tier">
-            <div class="amount">100 bobux</div>
-            <p>Funds staff briefings and investigative pieces highlighting government programs.</p>
-        </div>
-        <div class="tier">
-            <div class="amount">Other</div>
-            <p>Choose any amount to support our continued coverage.</p>
+
+        <aside class="donate-sidebar">
+            <div class="donate-form">
+                <div class="form-row">
+                    <label for="amount">Donation amount</label>
+                    <select id="amount" class="select" style="font-size: Coolvetica;">
+                        <option>10 bobux</option>
+                        <option>25 bobux</option>
+                        <option>50 bobux</option>
+                        <option>100 bobux</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="name">Name</label>
+                    <input id="name" class="input" type="text" />
+                </div>
+                <div class="form-row">
+                    <label for="email">Email</label>
+                    <input id="email" class="input" type="email" />
+                </div>
+                <div class="form-row">
+                    <button class="donate-cta">Donate by credit / debit card</button>
+                </div>
+            </div>
+        </aside>
+    </div>
+    </div>
+
+    <div class="modal-overlay" id="donate-modal">
+        <div class="modal" role="dialog" aria-modal="true">
+            <h3>Identity required</h3>
+            <p>For Intelligentsia, to ensure proper and clean channels of donation money, our platform requires an
+                Obsesstan government issued ID. Please upload a photo or scan of your government ID to proceed.</p>
+            <div class="file-row">
+                <div class="file-picker">
+                    <label class="file-btn" for="id-upload">Choose file</label>
+                    <div class="file-name" id="file-name">No file selected</div>
+                    <input type="file" id="id-upload" accept="image/*,application/pdf">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn secondary" id="cancel-upload">Cancel</button>
+                <button class="btn primary" id="confirm-upload">Upload & Continue</button>
+            </div>
         </div>
     </div>
 
-    <aside class="donate-sidebar">
-        <div class="donate-form">
-            <div class="form-row">
-                <label for="amount">Donation amount</label>
-                <select id="amount" class="select" style="font-size: Coolvetica;">
-                    <option>10 bobux</option>
-                    <option>25 bobux</option>
-                    <option>50 bobux</option>
-                    <option>100 bobux</option>
-                    <option>Other</option>
-                </select>
-            </div>
-            <div class="form-row">
-                <label for="name">Name</label>
-                <input id="name" class="input" type="text" />
-            </div>
-            <div class="form-row">
-                <label for="email">Email</label>
-                <input id="email" class="input" type="email" />
-            </div>
-            <div class="form-row">
-                <button class="donate-cta">Donate by credit / debit card</button>
-            </div>
-        </div>
-    </aside>
-</div>
-</div>
-
-<div class="modal-overlay" id="donate-modal">
-    <div class="modal" role="dialog" aria-modal="true">
-        <h3>Identity required</h3>
-        <p>For Intelligentsia, to ensure proper and clean channels of donation money, our platform requires an Obsesstan government issued ID. Please upload a photo or scan of your government ID to proceed.</p>
-        <div class="file-row">
-            <div class="file-picker">
-                <label class="file-btn" for="id-upload">Choose file</label>
-                <div class="file-name" id="file-name">No file selected</div>
-                <input type="file" id="id-upload" accept="image/*,application/pdf">
-            </div>
-        </div>
-        <div class="modal-actions">
-            <button class="btn secondary" id="cancel-upload">Cancel</button>
-            <button class="btn primary" id="confirm-upload">Upload & Continue</button>
+    <div class="message-overlay" id="donate-message" aria-hidden="true">
+        <div class="message-box">
+            <div class="message-content" id="message-text"></div>
+            <div style="text-align:right;margin-top:12px;"><button class="btn primary" id="message-ok">OK</button></div>
         </div>
     </div>
-</div>
 
-<div class="message-overlay" id="donate-message" aria-hidden="true">
-    <div class="message-box">
-        <div class="message-content" id="message-text"></div>
-        <div style="text-align:right;margin-top:12px;"><button class="btn primary" id="message-ok">OK</button></div>
-    </div>
-</div>
-
-<script src="js/donate.js"></script>
+    <script src="js/donate.js"></script>
 </body>
+
 </html>

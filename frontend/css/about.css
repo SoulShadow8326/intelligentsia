@@ -1,22 +1,22 @@
-:root{
+:root {
     --bg: #FFEDDF;
     --gold: #EAA707;
-    --red: #91080D;
+    --red: #90090C;
 }
 
-body[data-page="about"]{
+body[data-page="about"] {
     background: var(--bg);
     color: #FFEDDF;
     font-family: 'Coolvetica', system-ui, -apple-system, 'Segoe UI', Roboto, 'Coolvetica Neue', Arial;
 }
 
-.deck{
+.deck {
     scroll-snap-type: y mandatory;
     overflow-y: auto;
     height: calc(100vh - 80px);
 }
 
-.deck-section{
+.deck-section {
     min-height: calc(100vh - 80px);
     display: flex;
     align-items: center;
@@ -25,16 +25,16 @@ body[data-page="about"]{
     padding: 0px 0px 0px 0px;
 }
 
-.deck-inner{
+.deck-inner {
     max-width: 1100px;
     width: 100%;
 }
 
-.deck-hero{
+.deck-hero {
     background: #FFEDDF;
 }
 
-.deck-title{
+.deck-title {
     font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     font-size: clamp(56px, 10vw, 140px);
     color: var(--gold);
@@ -43,7 +43,7 @@ body[data-page="about"]{
     font-weight: 700;
 }
 
-.deck-sub{
+.deck-sub {
     font-family: 'Coolvetica', system-ui, -apple-system, 'Segoe UI', Roboto, 'Coolvetica Neue', Arial;
     text-align: center;
     color: var(--red);
@@ -52,7 +52,7 @@ body[data-page="about"]{
     margin: 0 auto;
 }
 
-.deck-dots{
+.deck-dots {
     position: fixed;
     right: 28px;
     top: 50%;
@@ -62,21 +62,23 @@ body[data-page="about"]{
     gap: 12px;
     z-index: 50;
 }
-.deck-dots .dot{
+
+.deck-dots .dot {
     width: 16px !important;
     height: 16px !important;
     border-radius: 50%;
     background: var(--gold);
-    border: 2px solid rgba(0,0,0,0.08);
+    border: 2px solid rgba(0, 0, 0, 0.08);
     cursor: pointer;
 }
-.deck-dots .dot.active{
+
+.deck-dots .dot.active {
     background: var(--red);
-    border-color: rgba(0,0,0,0.12);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-.deck-heading{
+.deck-heading {
     font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     font-size: 52px;
     color: var(--gold);
@@ -84,7 +86,7 @@ body[data-page="about"]{
     font-weight: 700;
 }
 
-.deck-copy{
+.deck-copy {
     font-size: 24px !important;
     line-height: 1.7;
     color: #222;
@@ -92,18 +94,19 @@ body[data-page="about"]{
     letter-spacing: 1px;
 }
 
-@media (min-width: 900px){
-    .deck-inner{
+@media (min-width: 900px) {
+    .deck-inner {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 28px;
         align-items: center;
     }
-    .deck-hero .deck-inner{
+
+    .deck-hero .deck-inner {
         grid-column: 1 / -1;
     }
-    .deck-copy{
+
+    .deck-copy {
         font-size: 16px;
     }
 }
-

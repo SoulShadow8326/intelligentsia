@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', function () {
             data.forEach(function (item) {
                 var el = document.createElement('div');
                 el.className = 'news-item';
-                el.innerHTML = '<div class="logdate">Log: ' + item.date + '</div>' +
-                    '<div class="log-body"><strong>' + '<a href ="article.html?slug=' + item.slug + '">' + escapeHtml(item.title) + '</a></strong><br/>' + escapeHtml(item.body) + '</div> ';
+                el.innerHTML =
+                    '<div class="log-body"><strong>' + '<a href ="article.html?slug=' + item.slug + '">' + escapeHtml(item.title) + '</a></strong><br/>' + '<div class="logdate">' + item.date + '</div>' + escapeHtml(item.body) + '</div> ';
                 container.appendChild(el);
             });
         });

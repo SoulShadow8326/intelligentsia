@@ -1,7 +1,7 @@
 :root {
     --bg: #FFEDDF;
     --gold: #EAA707;
-    --red: #91080D;
+    --red: #90090C;
 }
 
 body[data-page="contact"] {
@@ -30,6 +30,7 @@ body[data-page="contact"] {
     justify-content: center;
     gap: 16px;
 }
+
 .contact-subtitle {
     font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     color: var(--red);
@@ -43,6 +44,7 @@ body[data-page="contact"] {
     gap: 16px;
     letter-spacing: 1px;
 }
+
 .contact-icon {
     width: 84px;
     height: 84px;
@@ -54,10 +56,11 @@ body[data-page="contact"] {
     font-size: 28px;
     margin-left: 1rem;
 }
-.contact-icon svg{
+
+.contact-icon svg {
     width: 64px;
     height: 64px;
-    fill: #91080D;
+    fill: #90090C;
 }
 
 .contact-form {
@@ -132,7 +135,7 @@ body[data-page="contact"] {
         flex-direction: column;
         gap: 12px;
     }
-    
+
     .contact-icon {
         width: 48px;
         height: 48px;
