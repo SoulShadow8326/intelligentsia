@@ -1,25 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-	const openBtn = document.getElementById('openReport');
-	const modal = document.getElementById('reportModal');
-	const closeBtn = document.getElementById('closeReport');
-	const cancelBtn = document.getElementById('cancelReport');
-	const backdrop = document.getElementById('modalBackdrop');
 	const form = document.getElementById('reportForm');
-
-	function showModal() {
-		modal.classList.add('show');
-		modal.setAttribute('aria-hidden', 'false');
-	}
-
-	function hideModal() {
-		modal.classList.remove('show');
-		modal.setAttribute('aria-hidden', 'true');
-	}
-
-	openBtn && openBtn.addEventListener('click', showModal);
-	closeBtn && closeBtn.addEventListener('click', hideModal);
-	cancelBtn && cancelBtn.addEventListener('click', hideModal);
-	backdrop && backdrop.addEventListener('click', hideModal);
+	const helplineToggle = document.getElementById('helplineToggle');
+	const helplinePanel = document.getElementById('helplinePanel');
+	const helplineClose = document.getElementById('helplineClose');
+	const recentList = document.getElementById('recentList');
 
 	form && form.addEventListener('submit', async function (e) {
 		e.preventDefault();
@@ -32,8 +16,17 @@ document.addEventListener('DOMContentLoaded', function () {
 			});
 
 			if (resp.ok) {
-				hideModal();
-				alert('Report submitted. Thank you.');
+					alert('Report submitted. Thank you.');
+					const formData = new FormData(form);
+					const title = formData.get('title') || 'Untitled';
+					const li = document.createElement('li');
+					li.textContent = title;
+					if (recentList) {
+						const empty = recentList.querySelector('.recent-empty');
+						empty && empty.remove();
+						recentList.insertBefore(li, recentList.firstChild);
+					}
+					form.reset();
 			} else {
 				alert('Failed to submit report.');
 			}
@@ -42,4 +35,17 @@ document.addEventListener('DOMContentLoaded', function () {
 			alert('Network error while submitting report.');
 		}
 	});
+
+		helplineToggle && helplineToggle.addEventListener('click', function () {
+			const expanded = helplineToggle.getAttribute('aria-expanded') === 'true';
+			helplineToggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+			if (helplinePanel) {
+				helplinePanel.setAttribute('aria-hidden', expanded ? 'true' : 'false');
+			}
+		});
+
+		helplineClose && helplineClose.addEventListener('click', function () {
+			helplinePanel && helplinePanel.setAttribute('aria-hidden', 'true');
+			helplineToggle && helplineToggle.setAttribute('aria-expanded', 'false');
+		});
 });

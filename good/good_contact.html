@@ -21,52 +21,63 @@
             <p class="contact-sub">If you witness unlawful government activities or need assistance, report here or call our helpline.</p>
         </section>
 
-        <section class="contact-grid">
-            <div class="helpline-card">
-                <h2>Helpline</h2>
-                <p class="helpline-number">+1 (800) 555-0199</p>
-                <p class="helpline-hours">Available 24/7 · Confidential</p>
-                <a href="tel:+18005550199" class="btn-primary">Call Now</a>
-            </div>
+        <section class="contact-grid two-column">
+            <div class="report-column">
+                <div class="report-card">
+                    <h2>Report Government Activity</h2>
+                    <p>Share details, upload evidence, and submit securely.</p>
+                    <form id="reportForm" class="inline-report" enctype="multipart/form-data">
+                        <label>
+                            Title
+                            <input type="text" name="title" required maxlength="120">
+                        </label>
 
-            <div class="report-card">
-                <h2>Report Government Activity</h2>
-                <p>Share details, upload evidence, and submit securely.</p>
-                <button id="openReport" class="btn-primary">Report an Incident</button>
-            </div>
-        </section>
-    </main>
+                        <label>
+                            Description
+                            <textarea name="description" rows="6" required maxlength="5000"></textarea>
+                        </label>
 
-    <div id="reportModal" class="modal" aria-hidden="true">
-        <div class="modal-backdrop" id="modalBackdrop"></div>
-        <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-            <header class="modal-header">
-                <h3 id="modalTitle">Report Incident</h3>
-                <button id="closeReport" class="modal-close">×</button>
-            </header>
-            <form id="reportForm" class="modal-body">
-                <label>
-                    Title
-                    <input type="text" name="title" required maxlength="120">
-                </label>
-
-                <label>
-                    Description
-                    <textarea name="description" rows="6" required maxlength="5000"></textarea>
-                </label>
-
-                <label class="file-label">
-                    Attach evidence (optional)
-                    <input type="file" name="evidence" accept="image/*,video/*">
-                </label>
-
-                <div class="modal-actions">
-                    <button type="button" id="cancelReport" class="btn-secondary">Cancel</button>
-                    <button type="submit" class="btn-primary">Submit Report</button>
+            <div class="file-row">
+                <div class="file-picker">
+                    <label class="file-btn" for="id-upload" style="color:#010001;">Choose file</label>
+                    <div class="file-name" id="file-name">No file selected</div>
+                    <input type="file" id="id-upload" accept="image/*,application/pdf">
                 </div>
-            </form>
+            </div>
+
+
+                        <div class="form-actions">
+                            <button type="reset" class="btn-secondary">Clear</button>
+                            <button type="submit" class="btn-primary">Submit Report</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <aside class="recent-column">
+                <div class="recent-reports">
+                    <h2>Recent Reports</h2>
+                    <ul id="recentList" class="recent-list">
+                        <li class="recent-empty">No reports yet.</li>
+                    </ul>
+                </div>
+            </aside>
+        </section>
+
+    <button id="helplineToggle" class="helpline-toggle" aria-expanded="false">
+        Helpline
+    </button>
+
+    <div id="helplinePanel" class="helpline-panel" aria-hidden="true">
+        <div class="helpline-inner">
+            <h3>Helpline</h3>
+            <p class="helpline-number">+1 (800) 555-0199</p>
+            <p class="helpline-hours">Available 24/7 · Confidential</p>
+            <a href="tel:+18005550199" class="btn-primary">Call Now</a>
+            <button id="helplineClose" class="btn-secondary">Close</button>
         </div>
     </div>
+    </main>
 
     <script src="js/good_contact.js"></script>
 </body>
