@@ -311,7 +311,11 @@ class Handler(SimpleHTTPRequestHandler):
                 out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
                 try:
                     out_json = json.loads(out)
-                    resp_body = json.dumps({'ok': True, 'result': out_json}).encode('utf-8')
+                    if isinstance(out_json, dict) and out_json.get('decoded'):
+                        result_text = out_json.get('decoded')
+                    else:
+                        result_text = json.dumps(out_json)
+                    resp_body = json.dumps({'ok': True, 'result_text': result_text}).encode('utf-8')
                 except Exception:
                     resp_body = json.dumps({'ok': True, 'result_text': out}).encode('utf-8')
                 self.send_response(200)
@@ -321,13 +325,41 @@ class Handler(SimpleHTTPRequestHandler):
                 self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                 self.end_headers()
                 self.wfile.write(resp_body)
-            except Exception as e:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                self.end_headers()
-                self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
+            except Exception:
+                try:
+                    glossary_path = os.path.join(base, 'data', 'glossary.json')
+                    glossary = []
+                    if os.path.exists(glossary_path):
+                        with open(glossary_path, 'r', encoding='utf-8') as gf:
+                            glossary = json.load(gf)
+                    text_l = text.lower()
+                    flags = []
+                    matches = []
+                    for g in glossary:
+                        term = g.get('term', '')
+                        aliases = g.get('aliases', []) or []
+                        check = [term] + aliases
+                        for a in check:
+                            if a and a.lower() in text_l:
+                                flags.append(a)
+                                matches.append({'term': term, 'matched': a})
+                    decoded = ('Flags detected: ' + ', '.join(sorted(set(flags))) + '.') if flags else 'No clear flags detected.'
+                    result_text = decoded
+                    resp_body = json.dumps({'ok': True, 'result_text': result_text}).encode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(resp_body)))
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    self.wfile.write(resp_body)
+                except Exception as e:
+                    self.send_response(500)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
             return
 
         if self.path != '/upload-id':
