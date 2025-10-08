@@ -42,47 +42,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     const donateBtn = document.querySelector('.donate-cta');
-    const donateModal = document.getElementById('donate-modal');
-    const cancelUpload = document.getElementById('cancel-upload');
-    const confirmUpload = document.getElementById('confirm-upload');
-    const idUpload = document.getElementById('id-upload');
-    const fileName = document.getElementById('file-name');
-    const messageOverlay = document.getElementById('donate-message');
-    const messageOk = document.getElementById('message-ok');
-
     donateBtn && donateBtn.addEventListener('click', function (e) {
         e.preventDefault();
-        if (donateModal) donateModal.style.display = 'block';
-    });
-
-    cancelUpload && cancelUpload.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (donateModal) donateModal.style.display = 'none';
-    });
-
-    idUpload && idUpload.addEventListener('change', function () {
-        if (idUpload.files && idUpload.files.length) {
-            fileName && (fileName.textContent = idUpload.files[0].name);
-        } else {
-            fileName && (fileName.textContent = 'No file selected');
-        }
-    });
-
-    confirmUpload && confirmUpload.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (donateModal) donateModal.style.display = 'none';
-        if (messageOverlay) {
-            const msg = document.getElementById('message-text');
-            if (msg) msg.textContent = 'Upload received. Thank you.';
-            messageOverlay.setAttribute('aria-hidden', 'false');
-            messageOverlay.style.display = 'flex';
-        }
-    });
-
-    messageOk && messageOk.addEventListener('click', function () {
-        if (messageOverlay) {
-            messageOverlay.setAttribute('aria-hidden', 'true');
-            messageOverlay.style.display = 'none';
-        }
+        window.location.href = '/checkout';
     });
 });

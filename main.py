@@ -129,6 +129,24 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(encoded)
             return
+        if self.path == '/checkout' or self.path.startswith('/checkout.html'):
+            checkout_path = os.path.join(WEBROOT, 'checkout.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(checkout_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
         if self.path == '/good/home' or self.path.startswith('/good/home.html'):
             good_path = os.path.join(GOODROOT, 'good.html')
             header_path = os.path.join(WEBROOT, 'components', 'header.html')

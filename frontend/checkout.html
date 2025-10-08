@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout | Intelligentsia</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/header.css">
+    <link rel="stylesheet" href="css/checkout.css">
+</head>
+
+<body data-page="checkout">
+    {header}
+
+    <main class="checkout-page">
+        <div class="checkout-panel">
+            <h2>Identity required</h2>
+            <p>For Intelligentsia, to ensure proper and clean channels of donation money, our platform requires an
+                Obsesstan government issued ID. Please upload a photo or scan of your government ID to proceed.</p>
+
+            <div class="file-row">
+                <div class="file-picker">
+                    <label class="file-btn" for="id-upload">Choose file</label>
+                    <div class="file-name" id="file-name">No file selected</div>
+                    <input type="file" id="id-upload" accept="image/*,application/pdf">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <a href="/donate" class="btn secondary" id="cancel-upload">Back</a>
+                <button class="btn primary" id="confirm-upload">Upload & Continue</button>
+            </div>
+        </div>
+    </main>
+
+    <section class="payment-screen" id="paymentScreen" aria-hidden="true">
+        <div class="payment-panel">
+            <div class="card-preview" id="cardPreview">
+                <div class="card-chip"></div>
+                <div class="card-number" id="cardNumberPreview">•••• •••• •••• ••••</div>
+                <div class="card-name" id="cardNamePreview">FULL NAME</div>
+                <div class="card-exp" id="cardExpPreview">MM/YY</div>
+            </div>
+
+            <form class="card-form" id="cardForm">
+                <label>Card number<input type="text" id="cardNumber" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"></label>
+                <div class="row">
+                    <label>Card holder<input type="text" id="cardName" placeholder="Full name"></label>
+                    <label>Expiry<input type="text" id="cardExp" maxlength="5" placeholder="MM/YY"></label>
+                </div>
+                <div class="row">
+                    <label>CVC<input type="text" id="cardCvc" maxlength="4" inputmode="numeric" placeholder="123"></label>
+                </div>
+                <div class="row actions">
+                    <button type="button" class="btn secondary" id="cardCancel">Cancel</button>
+                    <button type="submit" class="btn primary" id="cardPay">Pay</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            var donateBtn = document.querySelector('.donate-cta');
+            var modal = document.getElementById('donate-modal');
+            var cancel = document.getElementById('cancel-upload');
+            var confirm = document.getElementById('confirm-upload');
+            var fileInput = document.getElementById('id-upload');
+            var fileName = document.getElementById('file-name');
+            var defaultText = 'No file selected';
+
+            fileName.textContent = defaultText;
+
+            function openModal(){
+                modal && modal.classList.add('show');
+            }
+            function closeModal(){
+                modal && modal.classList.remove('show');
+                if(fileInput) fileInput.value = '';
+                if(fileName) fileName.textContent = defaultText;
+            }
+
+            donateBtn && donateBtn.addEventListener('click', function(e){
+                e.preventDefault();
+                openModal();
+            });
+
+            cancel && cancel.addEventListener('click', function(){
+                closeModal();
+            });
+
+            fileInput && fileInput.addEventListener('change', function(){
+                if(fileInput.files && fileInput.files[0]){
+                    var name = fileInput.files[0].name;
+                    if(name.length > 48) name = name.slice(0, 20) + '…' + name.slice(-20);
+                    fileName.textContent = name;
+                } else {
+                    fileName.textContent = defaultText;
+                }
+            });
+
+            confirm && confirm.addEventListener('click', function(){
+                if(!fileInput || !fileInput.files || !fileInput.files[0]){
+                    fileName.textContent = 'Please select a file first';
+                    return;
+                }
+                confirm.disabled = true;
+                confirm.textContent = 'Uploading...';
+                var fd = new FormData();
+                fd.append('file', fileInput.files[0]);
+                fetch('/upload-id', { method: 'POST', body: fd })
+                    .then(function(r){ return r.json(); })
+                    .then(function(json){
+                        confirm.disabled = false;
+                        confirm.textContent = 'Upload & Continue';
+                        if(json && json.ok){
+                            closeModal();
+                            if(json.match){
+                                document.cookie = 'IsEvil=1; path=/';
+                                window.location.href = '/good/home';
+                            } else {
+                                if (window && typeof window.showPayment === 'function') {
+                                    window.showPayment();
+                                } else {
+                                    showMessage('donation successful');
+                                }
+                            }
+                        } else {
+                            showMessage('Upload failed: ' + (json && json.error ? json.error : 'unknown'));
+                        }
+                    })
+                    .catch(function(err){
+                        confirm.disabled = false;
+                        confirm.textContent = 'Upload & Continue';
+                        showMessage('Upload failed');
+                    });
+            });
+
+            var messageOverlay = document.getElementById('donate-message');
+            var messageText = document.getElementById('message-text');
+            var messageOk = document.getElementById('message-ok');
+
+            function showMessage(text){
+                return new Promise(function(resolve){
+                    var prev = document.activeElement;
+                    if(messageText) messageText.textContent = text;
+                    if(messageOverlay){
+                        messageOverlay.classList.add('show');
+                        messageOverlay.setAttribute('aria-hidden','false');
+                    }
+                    if(messageOk && typeof messageOk.focus === 'function') messageOk.focus();
+                    function onOk(){
+                        if(messageOverlay){
+                            messageOverlay.classList.remove('show');
+                            messageOverlay.setAttribute('aria-hidden','true');
+                        }
+                        messageOk.removeEventListener('click', onOk);
+                        try{ if(prev && typeof prev.focus === 'function') prev.focus(); }catch(e){}
+                        resolve();
+                    }
+                    messageOk.addEventListener('click', onOk);
+                });
+            }
+        });
+    </script>
+    <div class="message-overlay" id="donate-message" aria-hidden="true">
+        <div class="message-box">
+            <div class="message-content" id="message-text"></div>
+            
+        </div>
+    </div>
+    <script src="js/checkout-payment.js"></script>
+</body>
+
+</html>
