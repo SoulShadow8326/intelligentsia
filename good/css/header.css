@@ -79,13 +79,12 @@ a {
 a:hover {
 	color: #EAA707 !important
 }
-
 .site-header {
-	position: sticky;
-	top: 0;
-	z-index: 1000;
-	background-color: var(--bg);
-	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: var(--bg);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .nav-list {
@@ -107,13 +106,12 @@ a:hover {
 }
 
 .nav-btn:hover {
-	color: white;
+    color: white;
 }
-
-.logo {
-	top: 28px;
-	left: 200px;
-	right: 20000px;
-	color: var(--gold);
-	font-size: 2rem;
+.logo{
+  top: 28px;
+  left: 200px;
+  right: 20000px;
+  color: var(--gold);
+  font-size: 2rem;
 }
