@@ -1,7 +1,7 @@
 :root {
-    --bg: #90090C;
-    --gold: #FFEDDF;
-    --black: #010001;
+	--bg: #90090C;
+	--gold: #EAA707;
+	--black: #ffffff;
 }
 
 body[data-page="news"] {
