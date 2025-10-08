@@ -52,6 +52,29 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(encoded)
             return
+        if self.path == '/good/contact' or self.path.startswith('/good/good_contact.html'):
+            good_path = os.path.join(GOODROOT, 'good_contact.html')
+            header_path = os.path.join(WEBROOT, 'components', 'header.html')
+            if not self.GoodPersonChecker():
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.end_headers()
+                return
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            good_header_html = ''
+            if os.path.exists(good_header_path):
+                with open(good_header_path, 'r', encoding='utf-8') as gf:
+                    good_header_html = gf.read()
+            rendered = render_template(good_path, {'header': header_html, 'goodheader': good_header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
         if self.path == '/contact' or self.path.startswith('/contact.html'):
             contact_path = os.path.join(WEBROOT, 'contact.html')
             header_path = os.path.join(WEBROOT, 'components', 'header.html')
