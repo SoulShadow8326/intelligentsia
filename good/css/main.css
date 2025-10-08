@@ -49,12 +49,3 @@
   padding: 18px 20px;
   border-bottom: 3px double #111;
 }
-
-.nav-list .nav-link:first-child {
-  /* position: fixed; */
-  top: 28px;
-  left: 200px;
-  right: 20000px;
-  color: var(--gold);
-  font-size: 2rem;
-}
