@@ -18,19 +18,11 @@
 	margin: none;
 }
 
-.hero-title {
-	font-family: HelveticaExtraCompressed, Arial, sans-serif;
-	color: var(--gold);
-	/* margin: 56px 0 10px 56px; */
-	line-height: 0.9;
-	font-weight: 500;
-	letter-spacing: 1px;
-	z-index: 1 !important;
-	font-size: 21vw;
-	align-items: center;
-	height: 100vh;
-	width: 100vw;
+.hero-content {
+	position: relative;
 }
+
+
 
 .hero-sub {
 	font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
@@ -98,6 +90,7 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	height: 80%;
 	font-size: 22vw;
 	/* scales with width */
 	line-height: 1;

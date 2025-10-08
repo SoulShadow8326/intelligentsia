@@ -33,7 +33,9 @@ main.news-hero {
   text-align: center;
 }
 
-main.news-hero, #article-title, #article-date {
+main.news-hero,
+#article-title,
+#article-date {
   text-align: center;
 }
 
@@ -48,6 +50,7 @@ main.news-hero, #article-title, #article-date {
   main.news-hero {
     max-width: 800px;
   }
+
   #article-title {
     font-size: 4.5rem;
   }

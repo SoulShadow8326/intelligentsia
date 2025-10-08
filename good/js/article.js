@@ -5,7 +5,7 @@ console.log(slug)
 if (!slug) {
     document.body.innerHTML = "<h2>No article specified.</h2>";
 } else {
-    fetch('/assets/news.json')
+    fetch('./assets/news.json')
         .then(res => res.json())
         .then(data => {
             const article = data.find(a => a.slug.trim() === slug.trim());
