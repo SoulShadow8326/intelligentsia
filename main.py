@@ -188,6 +188,19 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(encoded)
             return
+        if self.path == '/good/article' or self.path.startswith('/good/article.html'):
+            article_path = os.path.join(GOODROOT, 'article.html')
+            header_path = os.path.join(GOODROOT, 'components', 'header.html')
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+            rendered = render_template(article_path, {'header': header_html})
+            encoded = rendered.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html; charset=utf-8')
+            self.send_header('Content-Length', str(len(encoded)))
+            self.end_headers()
+            self.wfile.write(encoded)
+            return
         else:
             return SimpleHTTPRequestHandler.do_GET(self)
 

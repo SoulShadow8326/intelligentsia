@@ -1,20 +1,20 @@
 :root {
-	--bg: #91080D;
-	--gold: #EAA707;
-	--black: #010001;
+    --bg: #91080D;
+    --gold: #EAA707;
+    --black: #010001;
 }
 
-body[data-page="news"]{
+body[data-page="news"] {
     background: var(--bg);
 }
 
-.news-hero{
+.news-hero {
     max-width: 1200px;
     margin: 40px auto 24px auto;
     padding: 0 24px;
 }
 
-.news-title{
+.news-title {
     font-family: Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
     color: var(--gold);
     font-size: clamp(48px, 8vw, 108px);
@@ -23,7 +23,11 @@ body[data-page="news"]{
     margin: 0 0 12px 0;
 }
 
-.news-layout{
+a {
+    text-decoration: none;
+}
+
+.news-layout {
     max-width: 1200px;
     margin: 0 auto 80px auto;
     display: grid;
@@ -33,47 +37,47 @@ body[data-page="news"]{
     align-items: start;
 }
 
-.news-list{
+.news-list {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
-.news-item{
+.news-item {
     background: #451010;
     padding: 18px 20px;
     border-radius: 2px;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
     font-family: Coolvetica, Coolvetica, 'Coolvetica Neue', Arial, sans-serif;
 }
 
-.news-item .log-date{
+.news-item .log-date {
     color: var(--gold);
     font-weight: 700;
     margin-bottom: 8px;
 }
 
-.news-item .log-body{
+.news-item .log-body {
     color: #ffffff;
     font-size: 16px;
     line-height: 1.35;
     letter-spacing: 1px;
 }
 
-.news-sidebar{
+.news-sidebar {
     display: flex;
     flex-direction: column;
     gap: 18px;
 }
 
-.map-box{
+.map-box {
     background: var(--black);
-    border: 4px solid rgba(0,0,0,0.06);
+    border: 4px solid rgba(0, 0, 0, 0.06);
     height: 260px;
     border-radius: 2px;
 }
 
-.alert-box{
+.alert-box {
     background: var(--black);
     color: #fff;
     padding: 14px 16px;
@@ -85,20 +89,42 @@ body[data-page="news"]{
     letter-spacing: 1px;
 }
 
-.alert-box .alert-title{
+.alert-box .alert-title {
     font-weight: 700;
 }
 
-.alert-box .alert-meta{
+.alert-box .alert-meta {
     font-size: 12px;
     opacity: 0.9;
 }
 
-@media (max-width: 900px){
-    .news-layout{
+@media (max-width: 900px) {
+    .news-layout {
         grid-template-columns: 1fr;
     }
-    .news-sidebar{
+
+    .news-sidebar {
         order: 2;
     }
+}
+
+a {
+    color: white;
+}
+
+a:hover {
+    text-align: underline;
+}
+
+strong {
+    transition: color 0.1s ease-in;
+
+}
+
+strong:hover {
+    color: #EAA707
+}
+
+.logdate {
+    
 }
