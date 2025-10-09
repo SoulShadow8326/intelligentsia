@@ -46,38 +46,71 @@
       var input=document.getElementById('chatInput');
       var send=document.getElementById('sendBtn');
       var messages=document.getElementById('messages');
-      function addMessage(text,me){
-        if(!text) return;
-        var row=document.createElement('div');
-        row.className='msg-row';
+            function addMessage(text,me){
+                if(!text) return;
+                var row=document.createElement('div');
+                row.className='msg-row';
+                if(me){
+                    row.classList.add('me-row');
+                } else {
+                    row.classList.add('you-row');
+                }
 
-        var avatar=document.createElement('div');
-        avatar.className='msg-avatar';
+                var avatar=document.createElement('div');
+                avatar.className='msg-avatar';
 
-        var bubbleWrap=document.createElement('div');
-        bubbleWrap.className='msg-bubble';
 
-        var bubble=document.createElement('div');
-        bubble.className='msg'+(me? ' me':' you');
-        bubble.textContent=text;
+                        var bubbleWrap=document.createElement('div');
+                        bubbleWrap.className='msg-bubble';
 
-        var time=document.createElement('span');
-        time.className='msg-time';
-        var d=new Date();
-        time.textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+                        var bubble=document.createElement('div');
+                        bubble.className='msg'+(me? ' me':' you');
+                        bubble.textContent=text;
 
-        bubbleWrap.appendChild(bubble);
-        bubbleWrap.appendChild(time);
+                        var time=document.createElement('span');
+                        time.className='msg-time';
+                        var d=new Date();
+                        time.textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
 
-        row.appendChild(avatar);
-        row.appendChild(bubbleWrap);
+                        bubbleWrap.appendChild(bubble);
 
-        messages.appendChild(row);
-        messages.scrollTop=messages.scrollHeight;
-      }
+                        if(me){
+                                            row.appendChild(avatar);
+                                            row.appendChild(bubbleWrap);
+                                            row.appendChild(time);
+                                        } else {
+                                            row.appendChild(time);
+                                            row.appendChild(bubbleWrap);
+                                            row.appendChild(avatar);
+                                        }
 
-      send.addEventListener('click',function(){ addMessage(input.value,true); input.value=''; input.focus(); });
-      input.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); send.click(); } });
+                messages.appendChild(row);
+                messages.scrollTop=messages.scrollHeight;
+            }
+
+            function sendMessage(){
+                var text = input.value.trim();
+                if(!text) return;
+                addMessage(text, true);
+                input.value = '';
+                input.focus();
+                fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text })
+                }).then(function(res){ return res.json(); }).then(function(data){
+                    if(data && data.ok && data.reply){
+                        addMessage(data.reply, false);
+                    } else if(data && data.reply){
+                        addMessage(data.reply, false);
+                    } else {
+                        addMessage('No reply received.', false);
+                    }
+                }).catch(function(){ addMessage('Error contacting server.', false); });
+            }
+
+            send.addEventListener('click', sendMessage);
+            input.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
     });
     </script>
 </body>
