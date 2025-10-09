@@ -14,15 +14,26 @@
 <body data-page="chat">
     {goodheader}
     <main class="chat-wrap">
+        <nav class="server-sidebar" aria-label="Servers">
+            <div class="server-icon"></div>
+            <div class="server-icon"></div>
+            <div class="server-icon"></div>
+        </nav>
+
+        
+
         <section class="panel chat-panel">
-            <div class="chat-header">Chat</div>
-            <div class="messages" id="messages" aria-live="polite"></div>
-            <div class="chat-input">
-                <input type="text" id="chatInput" placeholder="Write a message">
-                <button id="sendBtn">Send</button>
+            <div class="chat-main">
+                <header class="chat-header">###########################################################################</header>
+                <div class="messages" id="messages" aria-live="polite"></div>
+                <div class="chat-input">
+                    <input type="text" id="chatInput" placeholder="Message #revolt">
+                    <button id="sendBtn">Send</button>
+                </div>
             </div>
         </section>
-        <aside class="panel ann-panel">
+
+        <aside class="right-sidebar">
             <div class="ann-header">Announcements</div>
             <div class="ann-list" id="annList">
                 <div class="ann-item">Welcome to Intelligentsia.</div>
@@ -37,12 +48,34 @@
       var messages=document.getElementById('messages');
       function addMessage(text,me){
         if(!text) return;
-        var d=document.createElement('div');
-        d.className='msg'+(me? ' me':'');
-        d.textContent=text;
-        messages.appendChild(d);
+        var row=document.createElement('div');
+        row.className='msg-row';
+
+        var avatar=document.createElement('div');
+        avatar.className='msg-avatar';
+
+        var bubbleWrap=document.createElement('div');
+        bubbleWrap.className='msg-bubble';
+
+        var bubble=document.createElement('div');
+        bubble.className='msg'+(me? ' me':' you');
+        bubble.textContent=text;
+
+        var time=document.createElement('span');
+        time.className='msg-time';
+        var d=new Date();
+        time.textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+
+        bubbleWrap.appendChild(bubble);
+        bubbleWrap.appendChild(time);
+
+        row.appendChild(avatar);
+        row.appendChild(bubbleWrap);
+
+        messages.appendChild(row);
         messages.scrollTop=messages.scrollHeight;
       }
+
       send.addEventListener('click',function(){ addMessage(input.value,true); input.value=''; input.focus(); });
       input.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); send.click(); } });
     });
