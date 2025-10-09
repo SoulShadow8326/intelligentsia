@@ -3,11 +3,28 @@ import os
 import json
 import traceback
 import importlib.util
+import urllib.request
 from template import render_template
 
 _GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 if _GEMINI_API_KEY:
     os.environ['GEMINI_API_KEY'] = _GEMINI_API_KEY
+
+# load .env if present
+try:
+    base = os.path.dirname(__file__)
+    env_path = os.path.join(base, '.env')
+    if os.path.exists(env_path):
+        with open(env_path, 'r', encoding='utf-8') as ef:
+            for line in ef:
+                line = line.strip()
+                if not line or line.startswith('#'):
+                    continue
+                if '=' in line:
+                    k, v = line.split('=', 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+except Exception:
+    pass
 
 PORT = 8080
 WEBROOT = os.path.join(os.path.dirname(__file__), 'frontend')
@@ -238,7 +255,8 @@ class Handler(SimpleHTTPRequestHandler):
             if os.path.exists(good_header_path):
                 with open(good_header_path, 'r', encoding='utf-8') as gf:
                     good_header_html = gf.read()
-            rendered = render_template(good_chat_path, {'header': header_html, 'goodheader': good_header_html})
+            gemini_key = os.environ.get('GEMINI_API_KEY', '')
+            rendered = render_template(good_chat_path, {'header': header_html, 'goodheader': good_header_html, 'gemini_key': gemini_key})
             encoded = rendered.encode('utf-8')
             self.send_response(200)
             self.send_header('Content-Type', 'text/html; charset=utf-8')
@@ -368,54 +386,7 @@ class Handler(SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
             return
 
-        if self.path == '/api/chat':
-            length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(length) if length else b''
-            try:
-                payload = json.loads(body.decode('utf-8') if body else '{}')
-            except Exception:
-                self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"invalid json"}')
-                return
-            message = payload.get('message', '')
-            base = os.path.dirname(__file__)
-            try:
-                with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
-                    system_prompt = json.load(f).get('prompt', '')
-            except Exception:
-                system_prompt = ''
-            contents = system_prompt + "\n\nUser:\n" + message
-            try:
-                from google import genai
-                client = genai.Client()
-                resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
-                out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
-                reply = out
-                resp_body = json.dumps({'ok': True, 'reply': reply}).encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Content-Length', str(len(resp_body)))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                self.end_headers()
-                self.wfile.write(resp_body)
-            except Exception as e:
-                tb = traceback.format_exc()
-                print('Error in /api/chat:', str(e))
-                print(tb)
-                resp_body = json.dumps({'ok': False, 'error': str(e), 'traceback': tb}).encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Content-Length', str(len(resp_body)))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                self.end_headers()
-                self.wfile.write(resp_body)
-            return
+
 
         if self.path == '/upload-id':
             try:
@@ -461,6 +432,95 @@ class Handler(SimpleHTTPRequestHandler):
                     pass
                 traceback.print_exc()
                 return
+        if self.path == '/api/chat':
+            length = int(self.headers.get('Content-Length', 0))
+            body = self.rfile.read(length) if length else b''
+            try:
+                payload = json.loads(body.decode('utf-8') if body else '{}')
+            except Exception:
+                self.send_response(400)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(b'{"ok":false,"error":"invalid json"}')
+                return
+            message = payload.get('message','')
+            try:
+                parsed_msg = json.loads(message) if isinstance(message, str) else None
+            except Exception:
+                parsed_msg = None
+            if isinstance(parsed_msg, dict):
+                if isinstance(parsed_msg.get('original'), str) and parsed_msg.get('original').strip():
+                    message = parsed_msg.get('original').strip()
+                elif isinstance(parsed_msg.get('text'), str) and parsed_msg.get('text').strip():
+                    message = parsed_msg.get('text').strip()
+                else:
+                    message = ''
+            base = os.path.dirname(__file__)
+            try:
+                with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
+                    system_prompt = json.load(f).get('prompt','')
+            except Exception:
+                system_prompt = ''
+            contents = system_prompt + "\n\nUser:\n" + message + "\n\nRespond in plain text only. Do not output JSON or any structured data, and do not include code fences; return only the answer text." 
+            api_key = os.environ.get('GEMINI_API_KEY','')
+            if not api_key:
+                self.send_response(500)
+                self.send_header('Content-Type', 'application/json')
+                self.end_headers()
+                self.wfile.write(json.dumps({'ok':False,'error':'no GEMINI_API_KEY configured'}).encode('utf-8'))
+                return
+            try:
+                from google import genai
+                client = genai.Client()
+                resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
+                out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
+                reply = out
+                resp_body = json.dumps({'ok': True, 'reply': reply}).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(resp_body)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(resp_body)
+                return
+            except Exception:
+                try:
+                    url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
+                    req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
+                    req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        resdata = resp.read()
+                        j = json.loads(resdata.decode('utf-8'))
+                        reply = ''
+                        try:
+                            if j and j.get('candidates') and len(j.get('candidates'))>0:
+                                candidate = j.get('candidates')[0]
+                                if candidate.get('content') and len(candidate.get('content'))>0:
+                                    reply = candidate.get('content')[0].get('text','')
+                                else:
+                                    reply = json.dumps(j)
+                            else:
+                                reply = json.dumps(j)
+                        except Exception:
+                            reply = json.dumps(j)
+                        resp_body = json.dumps({'ok':True,'reply':reply}).encode('utf-8')
+                        self.send_response(200)
+                        self.send_header('Content-Type','application/json')
+                        self.send_header('Content-Length',str(len(resp_body)))
+                        self.send_header('Access-Control-Allow-Origin','*')
+                        self.end_headers()
+                        self.wfile.write(resp_body)
+                        return
+                except Exception as e:
+                    tb = traceback.format_exc()
+                    resp_body = json.dumps({'ok':False,'error':str(e),'traceback':tb}).encode('utf-8')
+                    self.send_response(200)
+                    self.send_header('Content-Type','application/json')
+                    self.send_header('Content-Length',str(len(resp_body)))
+                    self.send_header('Access-Control-Allow-Origin','*')
+                    self.end_headers()
+                    self.wfile.write(resp_body)
+                    return
         else:
             return super().do_POST()
 
