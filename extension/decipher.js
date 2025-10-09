@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   run.addEventListener('click', () => {
     const txt = input.value || '';
-  var endpoint = 'http://localhost:8080/api/decipher';
+  var endpoint = 'http://localhost:8080/api/chat';
     fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: txt }) })
       .then(r=>r.json())
       .then(j=>{ if(j && j.ok && j.result){ out.textContent = typeof j.result === 'string' ? j.result : JSON.stringify(j.result, null, 2); return } if(j && j.ok && j.result_text){ out.textContent = j.result_text; return } out.textContent = JSON.stringify(j, null, 2); })
