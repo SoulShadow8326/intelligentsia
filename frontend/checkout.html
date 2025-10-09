@@ -45,13 +45,15 @@
             </div>
 
             <form class="card-form" id="cardForm">
-                <label>Card number<input type="text" id="cardNumber" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456"></label>
+                <label>Card number<input type="text" id="cardNumber" inputmode="numeric" maxlength="19"
+                        placeholder="1234 5678 9012 3456"></label>
                 <div class="row">
                     <label>Card holder<input type="text" id="cardName" placeholder="Full name"></label>
                     <label>Expiry<input type="text" id="cardExp" maxlength="5" placeholder="MM/YY"></label>
                 </div>
                 <div class="row">
-                    <label>CVC<input type="text" id="cardCvc" maxlength="4" inputmode="numeric" placeholder="123"></label>
+                    <label>CVC<input type="text" id="cardCvc" maxlength="4" inputmode="numeric"
+                            placeholder="123"></label>
                 </div>
                 <div class="row actions">
                     <button type="button" class="btn secondary" id="cardCancel">Cancel</button>
@@ -62,7 +64,7 @@
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function(){
+        document.addEventListener('DOMContentLoaded', function () {
             var donateBtn = document.querySelector('.donate-cta');
             var modal = document.getElementById('donate-modal');
             var cancel = document.getElementById('cancel-upload');
@@ -73,36 +75,36 @@
 
             fileName.textContent = defaultText;
 
-            function openModal(){
+            function openModal() {
                 modal && modal.classList.add('show');
             }
-            function closeModal(){
+            function closeModal() {
                 modal && modal.classList.remove('show');
-                if(fileInput) fileInput.value = '';
-                if(fileName) fileName.textContent = defaultText;
+                if (fileInput) fileInput.value = '';
+                if (fileName) fileName.textContent = defaultText;
             }
 
-            donateBtn && donateBtn.addEventListener('click', function(e){
+            donateBtn && donateBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 openModal();
             });
 
-            cancel && cancel.addEventListener('click', function(){
+            cancel && cancel.addEventListener('click', function () {
                 closeModal();
             });
 
-            fileInput && fileInput.addEventListener('change', function(){
-                if(fileInput.files && fileInput.files[0]){
+            fileInput && fileInput.addEventListener('change', function () {
+                if (fileInput.files && fileInput.files[0]) {
                     var name = fileInput.files[0].name;
-                    if(name.length > 48) name = name.slice(0, 20) + '…' + name.slice(-20);
+                    if (name.length > 48) name = name.slice(0, 20) + '…' + name.slice(-20);
                     fileName.textContent = name;
                 } else {
                     fileName.textContent = defaultText;
                 }
             });
 
-            confirm && confirm.addEventListener('click', function(){
-                if(!fileInput || !fileInput.files || !fileInput.files[0]){
+            confirm && confirm.addEventListener('click', function () {
+                if (!fileInput || !fileInput.files || !fileInput.files[0]) {
                     fileName.textContent = 'Please select a file first';
                     return;
                 }
@@ -111,13 +113,13 @@
                 var fd = new FormData();
                 fd.append('file', fileInput.files[0]);
                 fetch('/upload-id', { method: 'POST', body: fd })
-                    .then(function(r){ return r.json(); })
-                    .then(function(json){
+                    .then(function (r) { return r.json(); })
+                    .then(function (json) {
                         confirm.disabled = false;
                         confirm.textContent = 'Upload & Continue';
-                        if(json && json.ok){
+                        if (json && json.ok) {
                             closeModal();
-                            if(json.match){
+                            if (json.match) {
                                 document.cookie = 'IsEvil=1; path=/';
                                 window.location.href = '/good/home';
                             } else {
@@ -131,7 +133,7 @@
                             showMessage('Upload failed: ' + (json && json.error ? json.error : 'unknown'));
                         }
                     })
-                    .catch(function(err){
+                    .catch(function (err) {
                         confirm.disabled = false;
                         confirm.textContent = 'Upload & Continue';
                         showMessage('Upload failed');
@@ -142,22 +144,22 @@
             var messageText = document.getElementById('message-text');
             var messageOk = document.getElementById('message-ok');
 
-            function showMessage(text){
-                return new Promise(function(resolve){
+            function showMessage(text) {
+                return new Promise(function (resolve) {
                     var prev = document.activeElement;
-                    if(messageText) messageText.textContent = text;
-                    if(messageOverlay){
+                    if (messageText) messageText.textContent = text;
+                    if (messageOverlay) {
                         messageOverlay.classList.add('show');
-                        messageOverlay.setAttribute('aria-hidden','false');
+                        messageOverlay.setAttribute('aria-hidden', 'false');
                     }
-                    if(messageOk && typeof messageOk.focus === 'function') messageOk.focus();
-                    function onOk(){
-                        if(messageOverlay){
+                    if (messageOk && typeof messageOk.focus === 'function') messageOk.focus();
+                    function onOk() {
+                        if (messageOverlay) {
                             messageOverlay.classList.remove('show');
-                            messageOverlay.setAttribute('aria-hidden','true');
+                            messageOverlay.setAttribute('aria-hidden', 'true');
                         }
                         messageOk.removeEventListener('click', onOk);
-                        try{ if(prev && typeof prev.focus === 'function') prev.focus(); }catch(e){}
+                        try { if (prev && typeof prev.focus === 'function') prev.focus(); } catch (e) { }
                         resolve();
                     }
                     messageOk.addEventListener('click', onOk);
@@ -168,7 +170,7 @@
     <div class="message-overlay" id="donate-message" aria-hidden="true">
         <div class="message-box">
             <div class="message-content" id="message-text"></div>
-            
+
         </div>
     </div>
     <script src="js/checkout-payment.js"></script>

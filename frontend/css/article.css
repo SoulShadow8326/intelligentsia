@@ -40,6 +40,12 @@ main.news-hero,
   text-align: center;
 }
 
+/* 
+*::selection {
+  background-color: #90090C;
+  color: #EAA707;
+} */
+
 #article-body img {
   max-width: 100%;
   height: auto;
