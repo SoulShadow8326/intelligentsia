@@ -301,90 +301,81 @@ class Handler(SimpleHTTPRequestHandler):
                 payload = json.loads(body.decode('utf-8') if body else '{}')
             except Exception:
                 self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                self.send_header('Content-Type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"invalid json"}')
+                self.wfile.write(b'invalid json')
                 return
             text = payload.get('text', '')
             spec = payload.get('spec', {})
             base = os.path.dirname(__file__)
-            data_dir = os.path.join(base, 'data')
             try:
                 with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
                     system_prompt = json.load(f).get('prompt', '')
             except Exception:
                 system_prompt = ''
-            files = []
-            for fn in os.listdir(data_dir) if os.path.exists(data_dir) else []:
-                p = os.path.join(data_dir, fn)
-                if not os.path.isfile(p):
-                    continue
-                try:
-                    with open(p, 'r', encoding='utf-8') as f:
-                        j = json.load(f)
-                except Exception:
-                    continue
-                files.append({'filename': fn, 'content': j})
-            contents = system_prompt + "\n\nText:\n" + text + "\n\nSpec:\n" + json.dumps(spec)
+            spec_summary = json.dumps(spec) if spec else ''
+            contents = system_prompt + "\n\nText:\n" + text + "\n\nSpec Summary:\n" + spec_summary + "\n\nRespond in plain text only. Do not output JSON or structured data. Return only the deciphered text." 
+            api_key = os.environ.get('GEMINI_API_KEY','')
+            if not api_key:
+                self.send_response(500)
+                self.send_header('Content-Type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'no GEMINI_API_KEY configured')
+                return
             try:
                 from google import genai
                 client = genai.Client()
                 resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
                 out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
-                try:
-                    out_json = json.loads(out)
-                    if isinstance(out_json, dict) and out_json.get('decoded'):
-                        result_text = out_json.get('decoded')
-                    else:
-                        result_text = json.dumps(out_json)
-                    resp_body = json.dumps({'ok': True, 'result_text': result_text}).encode('utf-8')
-                except Exception:
-                    resp_body = json.dumps({'ok': True, 'result_text': out}).encode('utf-8')
+                reply = out
+                if isinstance(reply, str):
+                    reply_bytes = reply.encode('utf-8')
+                else:
+                    reply_bytes = str(reply).encode('utf-8')
                 self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Content-Length', str(len(resp_body)))
+                self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                self.send_header('Content-Length', str(len(reply_bytes)))
                 self.send_header('Access-Control-Allow-Origin', '*')
-                self.send_header('Access-Control-Allow-Headers', 'Content-Type')
                 self.end_headers()
-                self.wfile.write(resp_body)
+                self.wfile.write(reply_bytes)
+                return
             except Exception:
                 try:
-                    glossary_path = os.path.join(base, 'data', 'glossary.json')
-                    glossary = []
-                    if os.path.exists(glossary_path):
-                        with open(glossary_path, 'r', encoding='utf-8') as gf:
-                            glossary = json.load(gf)
-                    text_l = text.lower()
-                    flags = []
-                    matches = []
-                    for g in glossary:
-                        term = g.get('term', '')
-                        aliases = g.get('aliases', []) or []
-                        check = [term] + aliases
-                        for a in check:
-                            if a and a.lower() in text_l:
-                                flags.append(a)
-                                matches.append({'term': term, 'matched': a})
-                    decoded = ('Flags detected: ' + ', '.join(sorted(set(flags))) + '.') if flags else 'No clear flags detected.'
-                    result_text = decoded
-                    resp_body = json.dumps({'ok': True, 'result_text': result_text}).encode('utf-8')
-                    self.send_response(200)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Content-Length', str(len(resp_body)))
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-                    self.end_headers()
-                    self.wfile.write(resp_body)
+                    url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
+                    req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
+                    req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
+                    with urllib.request.urlopen(req, timeout=30) as resp:
+                        resdata = resp.read()
+                        j = json.loads(resdata.decode('utf-8'))
+                        reply = ''
+                        try:
+                            if j and j.get('candidates') and len(j.get('candidates'))>0:
+                                candidate = j.get('candidates')[0]
+                                if candidate.get('content') and len(candidate.get('content'))>0:
+                                    reply = candidate.get('content')[0].get('text','')
+                                else:
+                                    reply = json.dumps(j)
+                            else:
+                                reply = json.dumps(j)
+                        except Exception:
+                            reply = json.dumps(j)
+                        if isinstance(reply, str):
+                            reply_bytes = reply.encode('utf-8')
+                        else:
+                            reply_bytes = str(reply).encode('utf-8')
+                        self.send_response(200)
+                        self.send_header('Content-Type','text/plain; charset=utf-8')
+                        self.send_header('Content-Length',str(len(reply_bytes)))
+                        self.send_header('Access-Control-Allow-Origin','*')
+                        self.end_headers()
+                        self.wfile.write(reply_bytes)
+                        return
                 except Exception as e:
                     self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.send_header('Access-Control-Allow-Origin', '*')
-                    self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+                    self.send_header('Content-Type', 'text/plain')
                     self.end_headers()
-                    self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
-            return
+                    self.wfile.write(str(e).encode('utf-8'))
+                    return
 
 
 
