@@ -3,4 +3,4 @@ uvicorn
 python-multipart
 pillow
 google
-cgi
+httpx

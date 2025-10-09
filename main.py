@@ -1,8 +1,8 @@
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import os
 import json
-import cgi
 import traceback
+import importlib.util
 from template import render_template
 
 PORT = 8080
@@ -367,60 +367,37 @@ class Handler(SimpleHTTPRequestHandler):
         if self.path == '/upload-id':
             try:
                 content_type = self.headers.get('Content-Type', '')
-                if 'multipart/form-data' not in content_type:
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(b'{"ok":false,"error":"Expected multipart/form-data"}')
-                    return
-                content_length = int(self.headers.get('Content-Length', 0))
-                fs = cgi.FieldStorage(fp=self.rfile, headers=self.headers, environ={'REQUEST_METHOD':'POST','CONTENT_TYPE':content_type,'CONTENT_LENGTH':str(content_length)})
-                if 'file' not in fs:
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
-                    return
-                fileitem = fs['file']
-                if not getattr(fileitem, 'filename', None):
-                    self.send_response(400)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(b'{"ok":false,"error":"No file uploaded"}')
-                    return
-                import uuid
-                filename = os.path.basename(fileitem.filename)
-                file_data = fileitem.file.read()
-                uploads_dir = os.path.join(WEBROOT, 'uploads')
-                os.makedirs(uploads_dir, exist_ok=True)
-                save_name = f"{uuid.uuid4()}_{filename}"
-                save_path = os.path.join(uploads_dir, save_name)
-                with open(save_path, 'wb') as f:
-                    f.write(file_data)
+                length = int(self.headers.get('Content-Length', 0))
+                body = self.rfile.read(length) if length else b''
                 try:
-                    from qrscan import compare_images
-                    match = compare_images(save_path)
+                    api_file = os.path.join(os.path.dirname(__file__), 'api', 'upload-id.py')
+                    spec = importlib.util.spec_from_file_location('upload_id_api', api_file)
+                    upload_api_module = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(upload_api_module)
+                    app = getattr(upload_api_module, 'app', None)
+                    if app is None:
+                        raise Exception('FastAPI app not found')
+                    from fastapi.testclient import TestClient
+                    client = TestClient(app)
+                    headers = {'Content-Type': content_type} if content_type else {}
+                    resp = client.request('POST', '/api/upload-id', content=body, headers=headers)
+                    self.send_response(resp.status_code)
+                    for k, v in resp.headers.items():
+                        if k.lower() in ('content-type', 'content-length'):
+                            self.send_header(k, v)
+                    self.end_headers()
+                    self.wfile.write(resp.content)
+                    return
                 except Exception as e:
                     try:
-                        os.remove(save_path)
+                        self.send_response(500)
+                        self.send_header('Content-Type', 'application/json')
+                        self.end_headers()
+                        self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
                     except Exception:
                         pass
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({"ok": False, "error": str(e)}).encode())
+                    traceback.print_exc()
                     return
-                try:
-                    os.remove(save_path)
-                except Exception:
-                    pass
-                resp = json.dumps({"ok": True, "match": bool(match)}).encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Content-Length', str(len(resp)))
-                self.end_headers()
-                self.wfile.write(resp)
-                return
             except Exception as e:
                 try:
                     self.send_response(500)
