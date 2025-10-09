@@ -306,6 +306,20 @@ class Handler(SimpleHTTPRequestHandler):
                 self.wfile.write(b'invalid json')
                 return
             text = payload.get('text', '')
+            try:
+                parsed_text = json.loads(text) if isinstance(text, str) else None
+            except Exception:
+                parsed_text = None
+            if isinstance(parsed_text, dict) and isinstance(parsed_text.get('decoded'), str) and parsed_text.get('decoded').strip():
+                reply = parsed_text.get('decoded').strip()
+                reply_bytes = reply.encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'text/plain; charset=utf-8')
+                self.send_header('Content-Length', str(len(reply_bytes)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                self.wfile.write(reply_bytes)
+                return
             spec = payload.get('spec', {})
             base = os.path.dirname(__file__)
             try:
