@@ -35,7 +35,61 @@
         <label class="form-label" for="query">Body</label>
         <textarea id="query" name="query" class="form-textarea" required></textarea>
     </div>
-    <button type="submit" class="form-submit">Submit</button>
+    <button type="submit" class="form-submit" onclick="toast('Your contribution to our nation’s glorious progress is invaluable.')">
+  Submit
+</button>
+  <style>
+    #toast-container {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 9999;
+    }
+
+    .toast {
+      background-color: #90090C;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-size: 16px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      font-family: Coolvetica;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+
+  <script>
+    const toastContainer = document.createElement('div');
+    toastContainer.id = 'toast-container';
+    document.body.appendChild(toastContainer);
+
+    function toast(message, duration = 3000) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      toastContainer.appendChild(toast);
+
+      setTimeout(() => toast.classList.add('show'), 10);
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, duration);
+    }
+  </script>
+
 </form>
 </body>
 </html>
