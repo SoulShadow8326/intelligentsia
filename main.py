@@ -120,7 +120,14 @@ def checkout():
 
 @app.get('/article', response_class=HTMLResponse)
 def article():
-    return _render_generic('article.html')
+    path = os.path.join(WEBROOT, 'article.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    rendered = _render(path, {'header': header_html})
+    return HTMLResponse(content=rendered, status_code=200)
 
 def _good_person_checker(request: Request):
     cookie = request.headers.get('cookie', '')
@@ -213,6 +220,25 @@ def good_about(request: Request):
     if not _good_person_checker(request):
         return Response(status_code=302, headers={'Location': '/'})
     path = os.path.join(GOODROOT, 'good_about.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+
+@app.get('/good/article', response_class=HTMLResponse)
+def good_article(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    path = os.path.join(GOODROOT, 'article.html')
     header_path = os.path.join(WEBROOT, 'components', 'header.html')
     header_html = ''
     if os.path.exists(header_path):
