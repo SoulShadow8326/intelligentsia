@@ -1,4 +1,7 @@
-from http.server import SimpleHTTPRequestHandler, HTTPServer
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import HTMLResponse, PlainTextResponse, JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import os
 import json
 import traceback
@@ -10,7 +13,6 @@ _GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
 if _GEMINI_API_KEY:
     os.environ['GEMINI_API_KEY'] = _GEMINI_API_KEY
 
-# load .env if present
 try:
     base = os.path.dirname(__file__)
     env_path = os.path.join(base, '.env')
@@ -26,528 +28,395 @@ try:
 except Exception:
     pass
 
-PORT = 8080
+PORT = int(os.environ.get('PORT', 8000))
 WEBROOT = os.path.join(os.path.dirname(__file__), 'frontend')
 GOODROOT = os.path.join(os.path.dirname(__file__), 'good')
 
-class Handler(SimpleHTTPRequestHandler):
-    def translate_path(self, path):
-        if path == '/' or path.startswith('/index.html'):
-            return os.path.join(WEBROOT, 'index.html')
-        if path.startswith('/good/'):
-            rel = path[len('/good/'):]
-            return os.path.join(GOODROOT, rel.lstrip('/'))
-        return os.path.join(WEBROOT, path.lstrip('/'))
+app = FastAPI()
 
-    def do_GET(self):
-        if self.path == '/' or self.path.startswith('/index.html'):
-            index_path = os.path.join(WEBROOT, 'index.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(index_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/news' or self.path.startswith('/news.html'):
-            news_path = os.path.join(WEBROOT, 'news.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(news_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/contact' or self.path.startswith('/good/good_contact.html'):
-            good_path = os.path.join(GOODROOT, 'good_contact.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            if not self.GoodPersonChecker():
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-                return
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(good_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/contact' or self.path.startswith('/contact.html'):
-            contact_path = os.path.join(WEBROOT, 'contact.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(contact_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/about' or self.path.startswith('/about.html'):
-            about_path = os.path.join(WEBROOT, 'about.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(about_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/donate' or self.path.startswith('/donate.html'):
-            donate_path = os.path.join(WEBROOT, 'donate.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(donate_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/checkout' or self.path.startswith('/checkout.html'):
-            checkout_path = os.path.join(WEBROOT, 'checkout.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(checkout_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/home' or self.path.startswith('/good/home.html'):
-            good_path = os.path.join(GOODROOT, 'good.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            if not self.GoodPersonChecker():
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-                return
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(good_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/about' or self.path.startswith('/good/good_about.html'):
-            good_about_path = os.path.join(GOODROOT, 'good_about.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            if not self.GoodPersonChecker():
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-                return
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(good_about_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/news' or self.path.startswith('/good/good_news.html'):
-            good_news_path = os.path.join(GOODROOT, 'good_news.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            if not self.GoodPersonChecker():
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-                return
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            rendered = render_template(good_news_path, {'header': header_html, 'goodheader': good_header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/chat' or self.path.startswith('/good/chat.html'):
-            good_chat_path = os.path.join(GOODROOT, 'chat.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            if not self.GoodPersonChecker():
-                self.send_response(302)
-                self.send_header('Location', '/')
-                self.end_headers()
-                return
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            good_header_html = ''
-            if os.path.exists(good_header_path):
-                with open(good_header_path, 'r', encoding='utf-8') as gf:
-                    good_header_html = gf.read()
-            gemini_key = os.environ.get('GEMINI_API_KEY', '')
-            rendered = render_template(good_chat_path, {'header': header_html, 'goodheader': good_header_html, 'gemini_key': gemini_key})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/article' or self.path.startswith('/article.html'):
-            article_path = os.path.join(WEBROOT, 'article.html')
-            header_path = os.path.join(WEBROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            rendered = render_template(article_path, {'header': header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        if self.path == '/good/article' or self.path.startswith('/good/article.html'):
-            article_path = os.path.join(GOODROOT, 'article.html')
-            header_path = os.path.join(GOODROOT, 'components', 'header.html')
-            with open(header_path, 'r', encoding='utf-8') as f:
-                header_html = f.read()
-            rendered = render_template(article_path, {'header': header_html})
-            encoded = rendered.encode('utf-8')
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/html; charset=utf-8')
-            self.send_header('Content-Length', str(len(encoded)))
-            self.end_headers()
-            self.wfile.write(encoded)
-            return
-        else:
-            return SimpleHTTPRequestHandler.do_GET(self)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-    def do_POST(self):
-        if self.path == '/api/decipher':
-            length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(length) if length else b''
-            try:
-                payload = json.loads(body.decode('utf-8') if body else '{}')
-            except Exception:
-                self.send_response(400)
-                self.send_header('Content-Type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(b'invalid json')
-                return
-            text = payload.get('text', '')
-            try:
-                parsed_text = json.loads(text) if isinstance(text, str) else None
-            except Exception:
-                parsed_text = None
-            if isinstance(parsed_text, dict) and isinstance(parsed_text.get('decoded'), str) and parsed_text.get('decoded').strip():
-                reply = parsed_text.get('decoded').strip()
-                reply_bytes = reply.encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'text/plain; charset=utf-8')
-                self.send_header('Content-Length', str(len(reply_bytes)))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(reply_bytes)
-                return
-            spec = payload.get('spec', {})
-            base = os.path.dirname(__file__)
-            try:
-                with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
-                    system_prompt = json.load(f).get('prompt', '')
-            except Exception:
-                system_prompt = ''
-            spec_summary = json.dumps(spec) if spec else ''
-            contents = system_prompt + "\n\nText:\n" + text + "\n\nSpec Summary:\n" + spec_summary + "\n\nRespond in plain text only. Do not output JSON or structured data. Return only the deciphered text." 
-            api_key = os.environ.get('GEMINI_API_KEY','')
-            if not api_key:
-                self.send_response(500)
-                self.send_header('Content-Type', 'text/plain')
-                self.end_headers()
-                self.wfile.write(b'no GEMINI_API_KEY configured')
-                return
-            try:
-                from google import genai
-                client = genai.Client()
-                resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
-                out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
-                reply = out
-                if isinstance(reply, str):
-                    reply_bytes = reply.encode('utf-8')
-                else:
-                    reply_bytes = str(reply).encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'text/plain; charset=utf-8')
-                self.send_header('Content-Length', str(len(reply_bytes)))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(reply_bytes)
-                return
-            except Exception:
+app.mount('/assets', StaticFiles(directory=os.path.join(WEBROOT, 'assets')), name='assets')
+app.mount('/css', StaticFiles(directory=os.path.join(WEBROOT, 'css')), name='css')
+app.mount('/js', StaticFiles(directory=os.path.join(WEBROOT, 'js')), name='js')
+app.mount('/fonts', StaticFiles(directory=os.path.join(WEBROOT, 'fonts')), name='fonts')
+
+def _load_system_prompt():
+    base = os.path.dirname(__file__)
+    try:
+        with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
+            return json.load(f).get('prompt', '')
+    except Exception:
+        return ''
+
+def _render(path, context=None):
+    context = context or {}
+    if os.path.exists(path):
+        try:
+            return render_template(path, context)
+        except Exception:
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+    return ''
+
+@app.get('/', response_class=HTMLResponse)
+def index():
+    index_path = os.path.join(WEBROOT, 'index.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(index_path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+def _render_generic(page_rel):
+    path = os.path.join(WEBROOT, page_rel)
+    if os.path.exists(path):
+        header_path = os.path.join(WEBROOT, 'components', 'header.html')
+        header_html = ''
+        if os.path.exists(header_path):
+            with open(header_path, 'r', encoding='utf-8') as f:
+                header_html = f.read()
+        good_header_path = os.path.join(WEBROOT, 'good', 'components', 'header.html')
+        good_header_html = ''
+        if os.path.exists(good_header_path):
+            with open(good_header_path, 'r', encoding='utf-8') as gf:
+                good_header_html = gf.read()
+        rendered = _render(path, {'header': header_html, 'goodheader': good_header_html})
+        return HTMLResponse(content=rendered, status_code=200)
+    return Response(status_code=404)
+
+@app.get('/news', response_class=HTMLResponse)
+def news():
+    return _render_generic('news.html')
+
+@app.get('/contact', response_class=HTMLResponse)
+def contact():
+    return _render_generic('contact.html')
+
+@app.get('/about', response_class=HTMLResponse)
+def about():
+    return _render_generic('about.html')
+
+@app.get('/donate', response_class=HTMLResponse)
+def donate():
+    return _render_generic('donate.html')
+
+@app.get('/checkout', response_class=HTMLResponse)
+def checkout():
+    return _render_generic('checkout.html')
+
+@app.get('/article', response_class=HTMLResponse)
+def article():
+    return _render_generic('article.html')
+
+def _good_person_checker(request: Request):
+    cookie = request.headers.get('cookie', '')
+    parts = [p.strip() for p in cookie.split(';') if p.strip()]
+    for p in parts:
+        if p.startswith('IsEvil='):
+            val = p.split('=', 1)[1]
+            return val == '1'
+    return False
+
+@app.get('/good/chat', response_class=HTMLResponse)
+def good_chat(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    good_chat_path = os.path.join(GOODROOT, 'chat.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    gemini_key = os.environ.get('GEMINI_API_KEY', '')
+    rendered = _render(good_chat_path, {'header': header_html, 'goodheader': good_header_html, 'gemini_key': gemini_key})
+    return HTMLResponse(content=rendered, status_code=200)
+
+
+@app.get('/good/home', response_class=HTMLResponse)
+def good_home(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    good_home_path = os.path.join(GOODROOT, 'good.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(good_home_path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+
+@app.get('/good/news', response_class=HTMLResponse)
+def good_news(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    path = os.path.join(GOODROOT, 'good_news.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+
+@app.get('/good/contact', response_class=HTMLResponse)
+def good_contact(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    path = os.path.join(GOODROOT, 'good_contact.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+
+@app.get('/good/about', response_class=HTMLResponse)
+def good_about(request: Request):
+    if not _good_person_checker(request):
+        return Response(status_code=302, headers={'Location': '/'})
+    path = os.path.join(GOODROOT, 'good_about.html')
+    header_path = os.path.join(WEBROOT, 'components', 'header.html')
+    header_html = ''
+    if os.path.exists(header_path):
+        with open(header_path, 'r', encoding='utf-8') as f:
+            header_html = f.read()
+    good_header_path = os.path.join(GOODROOT, 'components', 'header.html')
+    good_header_html = ''
+    if os.path.exists(good_header_path):
+        with open(good_header_path, 'r', encoding='utf-8') as gf:
+            good_header_html = gf.read()
+    rendered = _render(path, {'header': header_html, 'goodheader': good_header_html})
+    return HTMLResponse(content=rendered, status_code=200)
+
+@app.post('/api/decipher')
+async def api_decipher(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        try:
+            body = await request.body()
+            payload = json.loads(body.decode('utf-8') if body else '{}')
+        except Exception:
+            return PlainTextResponse('invalid json', status_code=400)
+    if not isinstance(payload, dict):
+        payload = {}
+    text = payload.get('text', '')
+    parsed_text = None
+    try:
+        if isinstance(text, str):
+            parsed_text = json.loads(text)
+    except Exception:
+        parsed_text = None
+    if isinstance(parsed_text, dict) and isinstance(parsed_text.get('decoded'), str) and parsed_text.get('decoded').strip():
+        reply = parsed_text.get('decoded').strip()
+        return PlainTextResponse(reply, status_code=200)
+    spec = payload.get('spec', {})
+    system_prompt = _load_system_prompt()
+    spec_summary = json.dumps(spec) if spec else ''
+    contents = system_prompt + "\n\nText:\n" + text + "\n\nSpec Summary:\n" + spec_summary + "\n\nRespond in plain text only. Do not output JSON or structured data. Return only the deciphered text."
+    api_key = os.environ.get('GEMINI_API_KEY', '')
+    if not api_key:
+        return PlainTextResponse('no GEMINI_API_KEY configured', status_code=500)
+    try:
+        from google import genai
+        client = genai.Client()
+        resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
+        out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
+        reply = out
+        return PlainTextResponse(str(reply), status_code=200)
+    except Exception:
+        try:
+            url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
+            req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
+            req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                resdata = resp.read()
+                j = json.loads(resdata.decode('utf-8'))
+                reply = ''
                 try:
-                    url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
-                    req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
-                    req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
-                    with urllib.request.urlopen(req, timeout=30) as resp:
-                        resdata = resp.read()
-                        j = json.loads(resdata.decode('utf-8'))
-                        reply = ''
-                        try:
-                            if j and j.get('candidates') and len(j.get('candidates'))>0:
-                                candidate = j.get('candidates')[0]
-                                if candidate.get('content') and len(candidate.get('content'))>0:
-                                    reply = candidate.get('content')[0].get('text','')
-                                else:
-                                    reply = json.dumps(j)
-                            else:
-                                reply = json.dumps(j)
-                        except Exception:
-                            reply = json.dumps(j)
-                        if isinstance(reply, str):
-                            reply_bytes = reply.encode('utf-8')
+                    if j and j.get('candidates') and len(j.get('candidates'))>0:
+                        candidate = j.get('candidates')[0]
+                        if candidate.get('content') and len(candidate.get('content'))>0:
+                            reply = candidate.get('content')[0].get('text','')
                         else:
-                            reply_bytes = str(reply).encode('utf-8')
-                        self.send_response(200)
-                        self.send_header('Content-Type','text/plain; charset=utf-8')
-                        self.send_header('Content-Length',str(len(reply_bytes)))
-                        self.send_header('Access-Control-Allow-Origin','*')
-                        self.end_headers()
-                        self.wfile.write(reply_bytes)
-                        return
-                except Exception as e:
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'text/plain')
-                    self.end_headers()
-                    self.wfile.write(str(e).encode('utf-8'))
-                    return
-
-
-
-        if self.path == '/upload-id':
-            try:
-                content_type = self.headers.get('Content-Type', '')
-                length = int(self.headers.get('Content-Length', 0))
-                body = self.rfile.read(length) if length else b''
-                try:
-                    api_file = os.path.join(os.path.dirname(__file__), 'api', 'upload-id.py')
-                    spec = importlib.util.spec_from_file_location('upload_id_api', api_file)
-                    upload_api_module = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(upload_api_module)
-                    app = getattr(upload_api_module, 'app', None)
-                    if app is None:
-                        raise Exception('FastAPI app not found')
-                    from fastapi.testclient import TestClient
-                    client = TestClient(app)
-                    headers = {'Content-Type': content_type} if content_type else {}
-                    resp = client.request('POST', '/api/upload-id', content=body, headers=headers)
-                    self.send_response(resp.status_code)
-                    for k, v in resp.headers.items():
-                        if k.lower() in ('content-type', 'content-length'):
-                            self.send_header(k, v)
-                    self.end_headers()
-                    self.wfile.write(resp.content)
-                    return
-                except Exception as e:
-                    try:
-                        self.send_response(500)
-                        self.send_header('Content-Type', 'application/json')
-                        self.end_headers()
-                        self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
-                    except Exception:
-                        pass
-                    traceback.print_exc()
-                    return
-            except Exception as e:
-                try:
-                    self.send_response(500)
-                    self.send_header('Content-Type', 'application/json')
-                    self.end_headers()
-                    self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode('utf-8'))
-                except Exception:
-                    pass
-                traceback.print_exc()
-                return
-        if self.path == '/api/chat':
-            length = int(self.headers.get('Content-Length', 0))
-            body = self.rfile.read(length) if length else b''
-            try:
-                payload = json.loads(body.decode('utf-8') if body else '{}')
-            except Exception:
-                self.send_response(400)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(b'{"ok":false,"error":"invalid json"}')
-                return
-            message = payload.get('message','')
-            try:
-                parsed_msg = json.loads(message) if isinstance(message, str) else None
-            except Exception:
-                parsed_msg = None
-            if isinstance(parsed_msg, dict):
-                if isinstance(parsed_msg.get('original'), str) and parsed_msg.get('original').strip():
-                    message = parsed_msg.get('original').strip()
-                elif isinstance(parsed_msg.get('text'), str) and parsed_msg.get('text').strip():
-                    message = parsed_msg.get('text').strip()
-                else:
-                    message = ''
-            base = os.path.dirname(__file__)
-            try:
-                with open(os.path.join(base, 'system_prompt.json'), 'r', encoding='utf-8') as f:
-                    system_prompt = json.load(f).get('prompt','')
-            except Exception:
-                system_prompt = ''
-            contents = system_prompt + "\n\nUser:\n" + message + "\n\nRespond in plain text only. Do not output JSON or any structured data, and do not include code fences; return only the answer text." 
-            api_key = os.environ.get('GEMINI_API_KEY','')
-            if not api_key:
-                self.send_response(500)
-                self.send_header('Content-Type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps({'ok':False,'error':'no GEMINI_API_KEY configured'}).encode('utf-8'))
-                return
-            try:
-                from google import genai
-                client = genai.Client()
-                resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
-                out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
-                reply = out
-                resp_body = json.dumps({'ok': True, 'reply': reply}).encode('utf-8')
-                self.send_response(200)
-                self.send_header('Content-Type', 'application/json')
-                self.send_header('Content-Length', str(len(resp_body)))
-                self.send_header('Access-Control-Allow-Origin', '*')
-                self.end_headers()
-                self.wfile.write(resp_body)
-                return
-            except Exception:
-                try:
-                    url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
-                    req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
-                    req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
-                    with urllib.request.urlopen(req, timeout=30) as resp:
-                        resdata = resp.read()
-                        j = json.loads(resdata.decode('utf-8'))
-                        reply = ''
-                        try:
-                            if j and j.get('candidates') and len(j.get('candidates'))>0:
-                                candidate = j.get('candidates')[0]
-                                if candidate.get('content') and len(candidate.get('content'))>0:
-                                    reply = candidate.get('content')[0].get('text','')
-                                else:
-                                    reply = json.dumps(j)
-                            else:
-                                reply = json.dumps(j)
-                        except Exception:
                             reply = json.dumps(j)
-                        resp_body = json.dumps({'ok':True,'reply':reply}).encode('utf-8')
-                        self.send_response(200)
-                        self.send_header('Content-Type','application/json')
-                        self.send_header('Content-Length',str(len(resp_body)))
-                        self.send_header('Access-Control-Allow-Origin','*')
-                        self.end_headers()
-                        self.wfile.write(resp_body)
-                        return
-                except Exception as e:
-                    tb = traceback.format_exc()
-                    resp_body = json.dumps({'ok':False,'error':str(e),'traceback':tb}).encode('utf-8')
-                    self.send_response(200)
-                    self.send_header('Content-Type','application/json')
-                    self.send_header('Content-Length',str(len(resp_body)))
-                    self.send_header('Access-Control-Allow-Origin','*')
-                    self.end_headers()
-                    self.wfile.write(resp_body)
-                    return
+                    else:
+                        reply = json.dumps(j)
+                except Exception:
+                    reply = json.dumps(j)
+                return PlainTextResponse(str(reply), status_code=200)
+        except Exception as e:
+            return PlainTextResponse(str(e), status_code=500)
+
+@app.post('/upload-id')
+async def upload_id(request: Request):
+    try:
+        content_type = request.headers.get('content-type', '')
+        body = await request.body()
+        api_file = os.path.join(os.path.dirname(__file__), 'api', 'upload-id.py')
+        spec = importlib.util.spec_from_file_location('upload_id_api', api_file)
+        upload_api_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(upload_api_module)
+        app_obj = getattr(upload_api_module, 'app', None)
+        if app_obj is None:
+            raise Exception('FastAPI app not found')
+        from fastapi.testclient import TestClient
+        client = TestClient(app_obj)
+        headers = {'Content-Type': content_type} if content_type else {}
+        resp = client.request('POST', '/api/upload-id', content=body, headers=headers)
+        return Response(content=resp.content, status_code=resp.status_code, media_type=resp.headers.get('content-type'))
+    except Exception as e:
+        tb = traceback.format_exc()
+        try:
+            headers_preview = dict(request.headers)
+        except Exception:
+            headers_preview = {}
+        body_preview = None
+        try:
+            if body is not None:
+                if isinstance(body, (bytes, bytearray)):
+                    body_preview = f'<{len(body)} bytes> ' + (body[:2048].decode('utf-8', errors='replace') if len(body) > 0 else '')
+                else:
+                    s = str(body)
+                    body_preview = s[:2048]
+        except Exception:
+            body_preview = '<unreadable body>'
+        log_obj = {
+            'error': str(e),
+            'traceback': tb,
+            'headers': headers_preview,
+            'body_preview': body_preview,
+        }
+        print('UPLOAD_ID_ERROR:', json.dumps(log_obj, ensure_ascii=False))
+        return JSONResponse({'ok': False, 'error': str(e), 'traceback': tb}, status_code=500)
+
+@app.post('/api/chat')
+async def api_chat(request: Request):
+    try:
+        payload = await request.json()
+    except Exception:
+        try:
+            body = await request.body()
+            payload = json.loads(body.decode('utf-8') if body else '{}')
+        except Exception:
+            return JSONResponse({'ok': False, 'error': 'invalid json'}, status_code=400)
+    message = payload.get('message', '')
+    parsed_msg = None
+    try:
+        if isinstance(message, str):
+            parsed_msg = json.loads(message)
+    except Exception:
+        parsed_msg = None
+    if isinstance(parsed_msg, dict):
+        if isinstance(parsed_msg.get('original'), str) and parsed_msg.get('original').strip():
+            message = parsed_msg.get('original').strip()
+        elif isinstance(parsed_msg.get('text'), str) and parsed_msg.get('text').strip():
+            message = parsed_msg.get('text').strip()
         else:
-            return super().do_POST()
+            message = ''
+    system_prompt = _load_system_prompt()
+    contents = system_prompt + "\n\nUser:\n" + message + "\n\nRespond in plain text only. Do not output JSON or any structured data, and do not include code fences; return only the answer text."
+    api_key = os.environ.get('GEMINI_API_KEY', '')
+    if not api_key:
+        return JSONResponse({'ok': False, 'error': 'no GEMINI_API_KEY configured'}, status_code=500)
+    try:
+        from google import genai
+        client = genai.Client()
+        resp = client.models.generate_content(model='gemini-2.5-flash', contents=contents)
+        out = getattr(resp, 'text', None) or (resp if isinstance(resp, str) else str(resp))
+        reply = out
+        return JSONResponse({'ok': True, 'reply': reply}, status_code=200)
+    except Exception:
+        try:
+            url = 'https://gemini.googleapis.com/v1/models/gemini-2.5-flash:generateMessage'
+            req_body = json.dumps({"messages":[{"content":{"text":contents}}],"temperature":0.2,"candidate_count":1}).encode('utf-8')
+            req = urllib.request.Request(url, data=req_body, headers={'Content-Type':'application/json','Authorization':'Bearer '+api_key})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                resdata = resp.read()
+                j = json.loads(resdata.decode('utf-8'))
+                reply = ''
+                try:
+                    if j and j.get('candidates') and len(j.get('candidates'))>0:
+                        candidate = j.get('candidates')[0]
+                        if candidate.get('content') and len(candidate.get('content'))>0:
+                            reply = candidate.get('content')[0].get('text','')
+                        else:
+                            reply = json.dumps(j)
+                    else:
+                        reply = json.dumps(j)
+                except Exception:
+                    reply = json.dumps(j)
+                return JSONResponse({'ok': True, 'reply': reply}, status_code=200)
+        except Exception as e:
+            tb = traceback.format_exc()
+            return JSONResponse({'ok': False, 'error': str(e), 'traceback': tb}, status_code=200)
 
-    def do_OPTIONS(self):
-        self.send_response(200)
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
-        self.end_headers()
+@app.get('/favicon.ico')
+def favicon():
+    f1 = os.path.join(WEBROOT, 'favicon.ico')
+    if os.path.exists(f1):
+        return FileResponse(f1)
+    f2 = os.path.join(GOODROOT, 'assets', 'favicon.ico')
+    if os.path.exists(f2):
+        return FileResponse(f2)
+    return PlainTextResponse('Not Found', status_code=404)
 
 
-    def GoodPersonChecker(self):
-        cookie = self.headers.get('Cookie', '')
-        parts = [p.strip() for p in cookie.split(';') if p.strip()]
-        for p in parts:
-            if p.startswith('IsEvil='):
-                val = p.split('=', 1)[1]
-                return val == '1'
-        return False
+app.mount('/good', StaticFiles(directory=GOODROOT), name='good')
+
+
+@app.get('/{full_path:path}')
+def catchall(full_path: str):
+    p = full_path.lstrip('/')
+    candidate = os.path.join(WEBROOT, p)
+    if os.path.exists(candidate) and os.path.isfile(candidate):
+        return FileResponse(candidate)
+    candidate_good = os.path.join(GOODROOT, p)
+    if os.path.exists(candidate_good) and os.path.isfile(candidate_good):
+        return FileResponse(candidate_good)
+    index_path = os.path.join(WEBROOT, p)
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return PlainTextResponse('Not Found', status_code=404)
 
 if __name__ == '__main__':
-    os.chdir(WEBROOT)
-    with HTTPServer(('0.0.0.0', PORT), Handler) as httpd:
-        print(f'Serving on port {PORT}')
-        httpd.serve_forever()
+    import uvicorn
+    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True)
