@@ -3,7 +3,9 @@
 	--gold: #EAA707;
 	--red: #90090C;
 }
-
+html{
+	overflow: hidden;
+}
 .hero {
 	background: var(--bg);
 	min-height: 100%;
