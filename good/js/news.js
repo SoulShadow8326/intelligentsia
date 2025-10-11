@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 var el = document.createElement('div');
                 el.className = 'news-item';
                 el.innerHTML =
-                    '<div class="log-body"><strong>' + '<a href ="article.html?slug=' + item.slug + '">' + escapeHtml(item.title) + '</a></strong><br/>' + '<div class="logdate">' + item.date + '</div>' + escapeHtml(item.body) + '</div> ';
+                    '<div class="log-body"><strong>' + '<a href ="article?slug=' + item.slug + '">' + escapeHtml(item.title) + '</a></strong><br/>' + '<div class="logdate">' + item.date + '</div>' + escapeHtml(item.body) + '</div> ';
                 container.appendChild(el);
             });
         });
