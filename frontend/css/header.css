@@ -40,6 +40,7 @@ body {
 	font-size: 34px;
 	font-weight: 700;
 	margin-right: 24px;
+	color: #0B2F6A !important;
 }
 
 .nav-link {
@@ -114,4 +115,10 @@ a:hover {
 	right: 20000px;
 	color: var(--black);
 	font-size: 2rem;
+}
+
+.hero-img{
+	max-height: 5vh;
+	max-width: auto;
+	margin-right: 5px;
 }
