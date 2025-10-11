@@ -102,7 +102,7 @@
 .modal-content {
 	position: relative;
 	width: min(820px, 96%);
-	background: #fff;
+	background: #FFEDDF;
 	color: var(--black);
 	border-radius: 8px;
 	padding: 0;
@@ -219,7 +219,7 @@
 	right: 20px;
 	bottom: 80px;
 	width: 280px;
-	background: #fff;
+	background: #FFEDDF;
 	color: var(--black);
 	border-radius: 8px;
 	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
@@ -293,7 +293,7 @@
 	padding: 14px 16px;
 	border-radius: 10px;
 	border: 2px solid rgba(0, 0, 0, 0.12);
-	background: #ffffff;
+	background: #FFEDDF;
 	color: #ffffff;
 	font-size: 14px;
 	font-family: Helvetica, Arial, sans-serif;
@@ -391,8 +391,8 @@
 
 .file-name {
 	flex: 1;
-	background: #fafafa;
-	border: 2px dashed #eee;
+	background: #FFEDDF;
+	border: 2px dashed #FFEDDF;
 	padding: 10px 12px;
 	border-radius: 8px;
 	font-size: 14px;

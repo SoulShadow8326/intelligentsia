@@ -1,8 +1,4 @@
 :root {
-    font-family: Coolvetica, Arial, sans-serif
-}
-
-:root {
     --bg: #90090C;
     --gold: #EAA707;
     --black: #010001;
@@ -10,7 +6,7 @@
 
 body {
     margin: 0;
-    background: #fff;
+    background: #FFEDDF;
     color: #111
 }
 
@@ -42,7 +38,7 @@ button {
 
 pre {
     white-space: pre-wrap;
-    background: #f6f6f6;
+    background: #fff6f2;
     padding: 16px;
     margin-top: 14px;
     font-size: 16px
@@ -74,10 +70,25 @@ textarea {
 
 pre {
     white-space: pre-wrap;
-    background: #f6f6f6;
+    background: #fff6f2;
     padding: 16px;
     margin-top: 14px;
     font-size: 16px;
     max-width: 100%;
     overflow: auto
+}
+.input{
+    background-color: #fff6f2;
+}
+
+.output{
+    font-family: Coolvetica;
+}
+.btn{
+    font-family: Coolvetica;
+    letter-spacing: 1px;
+}
+.heading{
+    font-family: Coolvetica;
+    letter-spacing: 1px;
 }
